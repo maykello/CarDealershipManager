@@ -1,0 +1,16 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CarDealershipManager.Models
+{
+    public class ModelModel
+    {
+        [Key]
+        public int ModelId { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+
+        public int? MakeId { get; set; }
+        public MakeModel Make { get; set; }
+        public ICollection<GenerationModel> GenerationModel { get; set; } = new List<GenerationModel>();
+    }
+}
