@@ -14,3 +14,6 @@ Aplikacja webowa, system zarządzania komisem samochodowym dostępna na komputer
 - responsywność interfejsu
 - kompresja zdjęć pojazdów i leniwe ładowanie
 - znormalizowana baza danych
+## Twórcy
+- Michał Mańka @ maykello
+- Jakub Bąk @ szeladin
