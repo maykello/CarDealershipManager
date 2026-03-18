@@ -16,4 +16,4 @@ Aplikacja webowa, system zarządzania komisem samochodowym dostępna na komputer
 - znormalizowana baza danych
 ## Twórcy
 - Michał Mańka @ maykello
-- Jakub Bąk @ szeladin
+- Jakub Bąk @ Szeladin
