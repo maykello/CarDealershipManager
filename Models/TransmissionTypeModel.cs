@@ -6,7 +6,7 @@ namespace CarDealershipManager.Models
     {
         [Key]
         public int TransmissionTypeId { get; set; }
-        public string? TransmissionType { get; set; }
+        public required string Name { get; set; }
         public string? Description { get; set; }
         public ICollection<CarModel> Cars { get; set; } = new List<CarModel>();
     }

@@ -9,7 +9,7 @@ namespace CarDealershipManager.Models
         public int? ProductionYear { get; set; }
         public int? HorsePower { get; set; }
         public int? Mileage { get; set; }
-        public string? Vin { get; set; }
+        public required string Vin { get; set; }
         public decimal? Price { get; set; }
         public string? Description { get; set; }
         public ICollection<GalleryModel>? Gallery { get; set; } = new List<GalleryModel>();
@@ -20,5 +20,6 @@ namespace CarDealershipManager.Models
         public EuroClassModel? EuroClass { get; set; }
         public ColorModel? Color { get; set; }
         public FuelTypeModel? FuelType { get; set; }
+        public required CarStatusModel CarStatus { get; set; }
     }
 }

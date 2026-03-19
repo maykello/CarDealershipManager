@@ -6,11 +6,11 @@ namespace CarDealershipManager.Models
     {
         [Key]
         public int PhotoId { get; set; }
-        public string? FilePath { get; set; }
+        public required string FilePath { get; set; }
         public string? Description { get; set; }
 
         public int? CarId { get; set; }
-        public CarModel Car { get; set; }
+        public required CarModel Car { get; set; }
     }
     
 }

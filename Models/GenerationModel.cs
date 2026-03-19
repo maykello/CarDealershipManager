@@ -6,11 +6,11 @@ namespace CarDealershipManager.Models
     {
         [Key]
         public int GenerationId { get; set; }
-        public string? Name { get; set; }
+        public required string Name { get; set; }
         public string? Description { get; set; }
 
         public int? ModelId { get; set; }
-        public ModelModel Model { get; set; }
+        public required ModelModel Model { get; set; }
         public ICollection<CarModel> Cars { get; set; } = new List<CarModel>();
     }
 }
