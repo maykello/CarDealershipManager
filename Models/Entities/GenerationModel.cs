@@ -1,13 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CarDealershipManager.Models
+namespace CarDealershipManager.Models.Entities
 {
-    public class CarStatusModel
+    public class GenerationModel
     {
         [Key]
-        public int CarStatusId { get; set; }
+        public int GenerationId { get; set; }
         public required string Name { get; set; }
         public string? Description { get; set; }
+
+        public int? ModelId { get; set; }
+        public required ModelModel Model { get; set; }
         public ICollection<CarModel> Cars { get; set; } = new List<CarModel>();
     }
 }

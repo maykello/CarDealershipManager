@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CarDealershipManager.Models
+namespace CarDealershipManager.Models.Entities
 {
     public class GalleryModel
     {

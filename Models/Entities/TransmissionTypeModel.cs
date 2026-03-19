@@ -1,14 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CarDealershipManager.Models
+namespace CarDealershipManager.Models.Entities
 {
-    public class FuelTypeModel
+    public class TransmissionTypeModel
     {
         [Key]
-        public int FuelTypeId { get; set; }
+        public int TransmissionTypeId { get; set; }
         public required string Name { get; set; }
         public string? Description { get; set; }
         public ICollection<CarModel> Cars { get; set; } = new List<CarModel>();
     }
-    
 }
