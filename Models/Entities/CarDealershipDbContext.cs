@@ -16,6 +16,7 @@ namespace CarDealershipManager.Models.Entities
         public DbSet<EuroClassModel> EuroClasses { get; set; }
         public DbSet<TransmissionTypeModel> TransmissionTypes { get; set; }
         public DbSet<MakeModel> Makes { get; set; }
+        public DbSet<CarStatusModel> CarStatus { get; set; }
         public DbSet<ModelModel> Models { get; set; }
         public DbSet<GenerationModel> Generations { get; set; }
         public DbSet<AdminModel> Admins { get; set; }
