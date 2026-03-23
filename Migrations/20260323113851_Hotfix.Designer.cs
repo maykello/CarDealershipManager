@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CarDealershipManager.Migrations
 {
     [DbContext(typeof(CarDealershipDbContext))]
-    [Migration("20260319184831_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20260323113851_Hotfix")]
+    partial class Hotfix
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -282,6 +282,12 @@ namespace CarDealershipManager.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ProducedSince")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProducedUntil")
+                        .HasColumnType("int");
 
                     b.HasKey("GenerationId");
 

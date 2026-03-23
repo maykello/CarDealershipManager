@@ -165,6 +165,8 @@ namespace CarDealershipManager.Migrations
                     GenerationId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProducedSince = table.Column<int>(type: "int", nullable: true),
+                    ProducentUntil = table.Column<int>(type: "int", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ModelId = table.Column<int>(type: "int", nullable: true)
                 },

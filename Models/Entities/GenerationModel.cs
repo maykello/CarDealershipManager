@@ -7,6 +7,8 @@ namespace CarDealershipManager.Models.Entities
         [Key]
         public int GenerationId { get; set; }
         public required string Name { get; set; }
+        public int? ProducedSince { get; set; }
+        public int? ProducedUntil { get; set; }
         public string? Description { get; set; }
 
         public int? ModelId { get; set; }
