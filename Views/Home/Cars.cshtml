@@ -1,4 +1,4 @@
-@model List<CarDealershipManager.Models.Entities.CarModel>
+@model CarDealershipManager.Models.PaginatedList<CarDealershipManager.Models.Entities.CarModel>
 
 @{
     ViewData["Title"] = "Nasze samochody";
@@ -7,7 +7,21 @@
 <div class="container mt-5">
     <h1 class="mb-4">Nasze samochody</h1>
 
-    @if (Model == null || Model.Count == 0)
+    <!-- Search Form -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <form method="get" action="@Url.Action("Cars")" class="input-group">
+                <input type="text" class="form-control" placeholder="Szukaj po marce lub modelu..." name="searchTerm" value="@Model.SearchTerm">
+                <button class="btn btn-primary" type="submit">Szukaj</button>
+                @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                {
+                    <a href="@Url.Action("Cars")" class="btn btn-secondary">Wyczyść</a>
+                }
+            </form>
+        </div>
+    </div>
+
+    @if (Model == null || Model.Items.Count == 0)
     {
         <div class="alert alert-info">
             Brak dostępnych samochodów.
@@ -15,7 +29,7 @@
     }
     else
     {
-        @foreach (var car in Model)
+        @foreach (var car in Model.Items)
         {
             <div class="row mb-5 border-bottom pb-4">
                 <!-- Zdjęcie po lewej -->
@@ -82,5 +96,73 @@
                 </div>
             </div>
         }
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation" class="mt-5 mb-4">
+            <ul class="pagination justify-content-center">
+                <!-- First page button -->
+                <li class="page-item @(Model.PageIndex == 1 ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Cars", new { pageIndex = 1, searchTerm = Model.SearchTerm })">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+
+                <!-- Previous page button -->
+                <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Cars", new { pageIndex = Model.PageIndex - 1, searchTerm = Model.SearchTerm })">
+                        Poprzednia
+                    </a>
+                </li>
+
+                <!-- Page numbers -->
+                @{
+                    int startPage = Math.Max(1, Model.PageIndex - 2);
+                    int endPage = Math.Min(Model.TotalPages, Model.PageIndex + 2);
+
+                    if (startPage > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("Cars", new { pageIndex = 1, searchTerm = Model.SearchTerm })">1</a>
+                        </li>
+                        if (startPage > 2)
+                        {
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        }
+                    }
+
+                    for (int i = startPage; i <= endPage; i++)
+                    {
+                        <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("Cars", new { pageIndex = i, searchTerm = Model.SearchTerm })">@i</a>
+                        </li>
+                    }
+
+                    if (endPage < Model.TotalPages)
+                    {
+                        if (endPage < Model.TotalPages - 1)
+                        {
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        }
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("Cars", new { pageIndex = Model.TotalPages, searchTerm = Model.SearchTerm })">@Model.TotalPages</a>
+                        </li>
+                    }
+                }
+
+                <!-- Next page button -->
+                <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Cars", new { pageIndex = Model.PageIndex + 1, searchTerm = Model.SearchTerm })">
+                        Następna
+                    </a>
+                </li>
+
+                <!-- Last page button -->
+                <li class="page-item @(Model.PageIndex == Model.TotalPages ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Cars", new { pageIndex = Model.TotalPages, searchTerm = Model.SearchTerm })">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
     }
 </div>

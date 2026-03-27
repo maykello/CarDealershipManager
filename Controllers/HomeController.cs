@@ -20,9 +20,11 @@ namespace CarDealershipManager.Controllers
             return View();
         }
 
-        public IActionResult Cars()
+        public IActionResult Cars(int pageIndex = 1, string searchTerm = "")
         {
-            var cars = _context.Cars
+            const int pageSize = 5;
+
+            var allCars = _context.Cars
                 .Include(c => c.Generation)
                     .ThenInclude(g => g.Model)
                         .ThenInclude(m => m.Make)
@@ -36,7 +38,29 @@ namespace CarDealershipManager.Controllers
                 .Include(c => c.CarStatus)
                 .ToList();
 
-            return View(cars);
+            // Filter by search term if provided
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var lowerSearchTerm = searchTerm.ToLower();
+                allCars = allCars.Where(c =>
+                    (c.Generation?.Model?.Make?.Name ?? "").ToLower().Contains(lowerSearchTerm) ||
+                    (c.Generation?.Model?.Name ?? "").ToLower().Contains(lowerSearchTerm) ||
+                    (c.Generation?.Name ?? "").ToLower().Contains(lowerSearchTerm)
+                ).ToList();
+            }
+
+            var totalCount = allCars.Count;
+            var paginatedCars = allCars
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var paginatedList = new PaginatedList<CarModel>(paginatedCars, totalCount, pageIndex, pageSize)
+            {
+                SearchTerm = searchTerm
+            };
+
+            return View(paginatedList);
         }
 
         public IActionResult Privacy()
