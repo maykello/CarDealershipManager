@@ -62,11 +62,17 @@ namespace CarDealershipManager.Controllers
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 var lowerSearchTerm = searchTerm.ToLower();
+                // Split search term into words
+                var searchWords = lowerSearchTerm.Split(new[] { ' ', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+
                 allCars = allCars.Where(c =>
-                    (c.Generation?.Model?.Make?.Name ?? "").ToLower().Contains(lowerSearchTerm) ||
-                    (c.Generation?.Model?.Name ?? "").ToLower().Contains(lowerSearchTerm) ||
-                    (c.Generation?.Name ?? "").ToLower().Contains(lowerSearchTerm)
-                ).ToList();
+                {
+                    // Combine all searchable fields into one string
+                    var fullText = $"{c.Generation?.Model?.Make?.Name ?? ""} {c.Generation?.Model?.Name ?? ""} {c.Generation?.Name ?? ""}".ToLower();
+
+                    // Check if all search words are found in the combined text
+                    return searchWords.All(word => fullText.Contains(word));
+                }).ToList();
             }
 
             if (makeId.HasValue)
@@ -184,6 +190,29 @@ namespace CarDealershipManager.Controllers
             };
 
             return View(paginatedList);
+        }
+
+        public IActionResult GetModelsByMake(int? makeId)
+        {
+            List<dynamic> models = new List<dynamic>();
+
+            if (makeId.HasValue)
+            {
+                models = _context.Models
+                    .Where(m => m.Make.MakeId == makeId.Value)
+                    .Select(m => new { m.ModelId, m.Name })
+                    .Cast<dynamic>()
+                    .ToList();
+            }
+            else
+            {
+                models = _context.Models
+                    .Select(m => new { m.ModelId, m.Name })
+                    .Cast<dynamic>()
+                    .ToList();
+            }
+
+            return Json(models);
         }
 
         public IActionResult Privacy()

@@ -331,3 +331,57 @@
     }
 </div>
 
+<script>
+    function updateModels() {
+        const makeId = document.getElementById('makeId').value;
+        const modelSelect = document.getElementById('modelId');
+
+        if (makeId === '') {
+            // Jeśli nie wybrano marki, wyświetl wszystkie modele
+            fetch('@Url.Action("GetModelsByMake", "Home")?makeId=')
+                .then(response => response.json())
+                .then(data => {
+                    updateModelSelect(data);
+                });
+        } else {
+            // Pobierz modele dla wybranej marki
+            fetch('@Url.Action("GetModelsByMake", "Home")?makeId=' + makeId)
+                .then(response => response.json())
+                .then(data => {
+                    updateModelSelect(data);
+                });
+        }
+    }
+
+    function updateModelSelect(models) {
+        const modelSelect = document.getElementById('modelId');
+        const currentSelectedId = modelSelect.value;
+
+        // Wyczyść opcje oprócz domyślnej
+        modelSelect.innerHTML = '<option value="">-- Wszystkie modele --</option>';
+
+        // Dodaj nowe opcje
+        models.forEach(model => {
+            const option = document.createElement('option');
+            option.value = model.modelId;
+            option.textContent = model.name;
+            modelSelect.appendChild(option);
+        });
+
+        // Przywróć poprzednio wybraną wartość jeśli istnieje
+        if (currentSelectedId) {
+            const optionExists = Array.from(modelSelect.options).some(opt => opt.value === currentSelectedId);
+            if (optionExists) {
+                modelSelect.value = currentSelectedId;
+            }
+        }
+    }
+
+    // Inicjalizuj modele przy wczytaniu strony
+    document.addEventListener('DOMContentLoaded', function() {
+        const makeId = document.getElementById('makeId').value;
+        if (makeId) {
+            updateModels();
+        }
+    });
+</script>
