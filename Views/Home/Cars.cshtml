@@ -1,0 +1,86 @@
+@model List<CarDealershipManager.Models.Entities.CarModel>
+
+@{
+    ViewData["Title"] = "Nasze samochody";
+}
+
+<div class="container mt-5">
+    <h1 class="mb-4">Nasze samochody</h1>
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="alert alert-info">
+            Brak dostępnych samochodów.
+        </div>
+    }
+    else
+    {
+        @foreach (var car in Model)
+        {
+            <div class="row mb-5 border-bottom pb-4">
+                <!-- Zdjęcie po lewej -->
+                <div class="col-md-5">
+                    @if (car.Gallery != null && car.Gallery.Any())
+                    {
+                        <img src="@car.Gallery.First().FilePath" class="img-fluid rounded" alt="@car.Generation?.Model?.Make?.Name @car.Generation?.Model?.Name" style="height: 350px; object-fit: cover; width: 100%;">
+                    }
+                    else
+                    {
+                        <div class="bg-secondary rounded" style="height: 350px; display: flex; align-items: center; justify-content: center; width: 100%;">
+                            <span class="text-white">Brak zdjęcia</span>
+                        </div>
+                    }
+                </div>
+
+                <!-- Informacje po prawej -->
+                <div class="col-md-7">
+                    <h3 class="mb-3">
+                        @car.Generation?.Model?.Make?.Name @car.Generation?.Model?.Name
+                        @if (!string.IsNullOrEmpty(car.Generation?.Name))
+                        {
+                            <span>- @car.Generation.Name</span>
+                        }
+                    </h3>
+
+                    <div class="mb-3">
+                        <p class="mb-2"><strong>Rok produkcji:</strong> @car.ProductionYear</p>
+                        <p class="mb-2"><strong>Przebieg:</strong> @car.Mileage km</p>
+                        <p class="mb-2"><strong>Moc:</strong> @car.HorsePower KM</p>
+                        <p class="mb-2"><strong>Paliwo:</strong> @car.FuelType?.Name</p>
+
+                        @if (car.TransmissionType != null)
+                        {
+                            <p class="mb-2"><strong>Transmisja:</strong> @car.TransmissionType.Name</p>
+                        }
+                        @if (car.BodyType != null)
+                        {
+                            <p class="mb-2"><strong>Typ nadwozia:</strong> @car.BodyType.Name</p>
+                        }
+                        @if (car.Color != null)
+                        {
+                            <p class="mb-2"><strong>Kolor:</strong> @car.Color.Name</p>
+                        }
+                        @if (car.Drivetrain != null)
+                        {
+                            <p class="mb-2"><strong>Napęd:</strong> @car.Drivetrain.Name</p>
+                        }
+                        @if (car.EuroClass != null)
+                        {
+                            <p class="mb-2"><strong>Euro klasa:</strong> @car.EuroClass.Name</p>
+                        }
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(car.Description))
+                    {
+                        <p class="text-muted mb-3">@car.Description</p>
+                    }
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="text-primary mb-0">@car.Price.ToString("C")</h4>
+                        <span class="badge bg-success fs-6">@car.CarStatus?.Name</span>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
