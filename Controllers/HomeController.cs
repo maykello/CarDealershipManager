@@ -1,17 +1,24 @@
 using CarDealershipManager.Models;
 using CarDealershipManager.Models.Entities;
+using CarDealershipManager.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 namespace CarDealershipManager.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly ICarSearchService _carSearchService;
+        private readonly IFilterService _filterService;
         private readonly CarDealershipDbContext _context;
 
-        public HomeController(CarDealershipDbContext context)
+        public HomeController(
+            ICarSearchService carSearchService, 
+            IFilterService filterService,
+            CarDealershipDbContext context)
         {
+            _carSearchService = carSearchService;
+            _filterService = filterService;
             _context = context;
         }
 
@@ -38,107 +45,15 @@ namespace CarDealershipManager.Controllers
             int? euroClassId = null,
             int? statusId = null)
         {
-            // Validate pageSize - allow only 10, 20, 50
-            if (pageSize != 10 && pageSize != 20 && pageSize != 50)
-            {
-                pageSize = 10;
-            }
+            pageSize = PaginationValidator.ValidatePageSize(pageSize);
 
-            var allCars = _context.Cars
-                .Include(c => c.Generation)
-                    .ThenInclude(g => g.Model)
-                        .ThenInclude(m => m.Make)
-                .Include(c => c.TransmissionType)
-                .Include(c => c.BodyType)
-                .Include(c => c.FuelType)
-                .Include(c => c.EuroClass)
-                .Include(c => c.Color)
-                .Include(c => c.Drivetrain)
-                .Include(c => c.Gallery)
-                .Include(c => c.CarStatus)
-                .ToList();
+            var allCars = _carSearchService.GetAllCarsWithIncludes();
+            var filterCriteria = _filterService.BuildFilterCriteria(
+                searchTerm, makeId, modelId, minPrice, maxPrice,
+                minYear, maxYear, fuelTypeId, transmissionId,
+                bodyTypeId, colorId, drivetrainId, euroClassId, statusId);
 
-            // Apply search filter
-            if (!string.IsNullOrWhiteSpace(searchTerm))
-            {
-                var lowerSearchTerm = searchTerm.ToLower();
-                // Split search term into words
-                var searchWords = lowerSearchTerm.Split(new[] { ' ', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-
-                allCars = allCars.Where(c =>
-                {
-                    // Combine all searchable fields into one string
-                    var fullText = $"{c.Generation?.Model?.Make?.Name ?? ""} {c.Generation?.Model?.Name ?? ""} {c.Generation?.Name ?? ""}".ToLower();
-
-                    // Check if all search words are found in the combined text
-                    return searchWords.All(word => fullText.Contains(word));
-                }).ToList();
-            }
-
-            if (makeId.HasValue)
-            {
-                allCars = allCars.Where(c => c.Generation?.Model?.Make?.MakeId == makeId.Value).ToList();
-            }
-
-            if (modelId.HasValue)
-            {
-                allCars = allCars.Where(c => c.Generation?.Model?.ModelId == modelId.Value).ToList();
-            }
-
-            if (minPrice.HasValue)
-            {
-                allCars = allCars.Where(c => c.Price >= minPrice.Value).ToList();
-            }
-
-            if (maxPrice.HasValue)
-            {
-                allCars = allCars.Where(c => c.Price <= maxPrice.Value).ToList();
-            }
-
-            if (minYear.HasValue)
-            {
-                allCars = allCars.Where(c => c.ProductionYear >= minYear.Value).ToList();
-            }
-
-            if (maxYear.HasValue)
-            {
-                allCars = allCars.Where(c => c.ProductionYear <= maxYear.Value).ToList();
-            }
-
-            if (fuelTypeId.HasValue)
-            {
-                allCars = allCars.Where(c => c.FuelType.FuelTypeId == fuelTypeId.Value).ToList();
-            }
-
-            if (transmissionId.HasValue)
-            {
-                allCars = allCars.Where(c => c.TransmissionType.TransmissionTypeId == transmissionId.Value).ToList();
-            }
-
-            if (bodyTypeId.HasValue)
-            {
-                allCars = allCars.Where(c => c.BodyType != null && c.BodyType.BodyTypeId == bodyTypeId.Value).ToList();
-            }
-
-            if (colorId.HasValue)
-            {
-                allCars = allCars.Where(c => c.Color != null && c.Color.ColorId == colorId.Value).ToList();
-            }
-
-            if (drivetrainId.HasValue)
-            {
-                allCars = allCars.Where(c => c.Drivetrain != null && c.Drivetrain.DrivetrainId == drivetrainId.Value).ToList();
-            }
-
-            if (euroClassId.HasValue)
-            {
-                allCars = allCars.Where(c => c.EuroClass != null && c.EuroClass.EuroClassId == euroClassId.Value).ToList();
-            }
-
-            if (statusId.HasValue)
-            {
-                allCars = allCars.Where(c => c.CarStatus.CarStatusId == statusId.Value).ToList();
-            }
+            allCars = _carSearchService.ApplyFilters(allCars, filterCriteria);
 
             var totalCount = allCars.Count;
             var paginatedCars = allCars
@@ -146,50 +61,11 @@ namespace CarDealershipManager.Controllers
                 .Take(pageSize)
                 .ToList();
 
-            // Build list of available models based on selected make
-            var models = new List<dynamic>();
-            if (makeId.HasValue)
-            {
-                models = _context.Models
-                    .Where(m => m.Make.MakeId == makeId.Value)
-                    .Cast<dynamic>()
-                    .ToList();
-            }
-            else
-            {
-                models = _context.Models.Cast<dynamic>().ToList();
-            }
+            var paginatedList = new PaginatedList<CarModel>(paginatedCars, totalCount, pageIndex, pageSize);
+            var availableFilters = _filterService.BuildFilterOptions(makeId);
+            var searchResult = new CarSearchResult(paginatedList, filterCriteria, availableFilters, pageIndex);
 
-            var paginatedList = new PaginatedList<CarModel>(paginatedCars, totalCount, pageIndex, pageSize)
-            {
-                SearchTerm = searchTerm,
-                SelectedMakeId = makeId,
-                SelectedModelId = modelId,
-                MinPrice = minPrice,
-                MaxPrice = maxPrice,
-                MinYear = minYear,
-                MaxYear = maxYear,
-                SelectedFuelTypeId = fuelTypeId,
-                SelectedTransmissionId = transmissionId,
-                SelectedBodyTypeId = bodyTypeId,
-                SelectedColorId = colorId,
-                SelectedDrivetrainId = drivetrainId,
-                SelectedEuroClassId = euroClassId,
-                SelectedStatusId = statusId,
-                
-                // Filter options from database
-                Makes = _context.Makes.Cast<dynamic>().ToList(),
-                Models = models,
-                FuelTypes = _context.FuelTypes.Cast<dynamic>().ToList(),
-                TransmissionTypes = _context.TransmissionTypes.Cast<dynamic>().ToList(),
-                BodyTypes = _context.BodyTypes.Cast<dynamic>().ToList(),
-                Colors = _context.Colors.Cast<dynamic>().ToList(),
-                Drivetrains = _context.Drivetrains.Cast<dynamic>().ToList(),
-                EuroClasses = _context.EuroClasses.Cast<dynamic>().ToList(),
-                CarStatuses = _context.CarStatus.Cast<dynamic>().ToList()
-            };
-
-            return View(paginatedList);
+            return View(searchResult);
         }
 
         public IActionResult GetModelsByMake(int? makeId)

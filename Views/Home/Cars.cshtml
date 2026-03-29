@@ -1,4 +1,4 @@
-@model CarDealershipManager.Models.PaginatedList<CarDealershipManager.Models.Entities.CarModel>
+@model CarDealershipManager.Models.CarSearchResult
 
 @{
     ViewData["Title"] = "Nasze samochody";
@@ -16,7 +16,7 @@
                 <div class="col-md-6 mb-3">
                     <label for="searchTerm" class="form-label">Szukaj (marka/model)</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="searchTerm" placeholder="Szukaj..." name="searchTerm" value="@Model.SearchTerm">
+                        <input type="text" class="form-control" id="searchTerm" placeholder="Szukaj..." name="searchTerm" value="@Model.CurrentFilters.SearchTerm">
                         <button class="btn btn-primary" type="submit">Szukaj</button>
                     </div>
                 </div>
@@ -26,9 +26,9 @@
                     <label for="makeId" class="form-label">Marka</label>
                     <select class="form-select" id="makeId" name="makeId" onchange="updateModels()">
                         <option value="">-- Wszystkie marki --</option>
-                        @foreach (var make in Model.Makes)
+                        @foreach (var make in Model.AvailableFilters.Makes)
                         {
-                            <option value="@make.MakeId" selected="@(Model.SelectedMakeId == make.MakeId)">@make.Name</option>
+                            <option value="@make.MakeId" selected="@(Model.CurrentFilters.MakeId == make.MakeId)">@make.Name</option>
                         }
                     </select>
                 </div>
@@ -38,9 +38,9 @@
                     <label for="modelId" class="form-label">Model</label>
                     <select class="form-select" id="modelId" name="modelId">
                         <option value="">-- Wszystkie modele --</option>
-                        @foreach (var carModel in Model.Models)
+                        @foreach (var carModel in Model.AvailableFilters.Models)
                         {
-                            <option value="@carModel.ModelId" selected="@(Model.SelectedModelId == carModel.ModelId)">@carModel.Name</option>
+                            <option value="@carModel.ModelId" selected="@(Model.CurrentFilters.ModelId == carModel.ModelId)">@carModel.Name</option>
                         }
                     </select>
                 </div>
@@ -48,23 +48,23 @@
                 <!-- Price Range -->
                 <div class="col-md-3 mb-3">
                     <label for="minPrice" class="form-label">Cena od</label>
-                    <input type="number" class="form-control" id="minPrice" name="minPrice" placeholder="Min" value="@Model.MinPrice?.ToString("0.00")" step="0.01">
+                    <input type="number" class="form-control" id="minPrice" name="minPrice" placeholder="Min" value="@Model.CurrentFilters.MinPrice?.ToString("0.00")" step="0.01">
                 </div>
 
                 <div class="col-md-3 mb-3">
                     <label for="maxPrice" class="form-label">Cena do</label>
-                    <input type="number" class="form-control" id="maxPrice" name="maxPrice" placeholder="Max" value="@Model.MaxPrice?.ToString("0.00")" step="0.01">
+                    <input type="number" class="form-control" id="maxPrice" name="maxPrice" placeholder="Max" value="@Model.CurrentFilters.MaxPrice?.ToString("0.00")" step="0.01">
                 </div>
 
                 <!-- Year Range -->
                 <div class="col-md-3 mb-3">
                     <label for="minYear" class="form-label">Rok od</label>
-                    <input type="number" class="form-control" id="minYear" name="minYear" placeholder="Min" value="@Model.MinYear">
+                    <input type="number" class="form-control" id="minYear" name="minYear" placeholder="Min" value="@Model.CurrentFilters.MinYear">
                 </div>
 
                 <div class="col-md-3 mb-3">
                     <label for="maxYear" class="form-label">Rok do</label>
-                    <input type="number" class="form-control" id="maxYear" name="maxYear" placeholder="Max" value="@Model.MaxYear">
+                    <input type="number" class="form-control" id="maxYear" name="maxYear" placeholder="Max" value="@Model.CurrentFilters.MaxYear">
                 </div>
 
                 <!-- Fuel Type Filter -->
@@ -72,9 +72,9 @@
                     <label for="fuelTypeId" class="form-label">Typ paliwa</label>
                     <select class="form-select" id="fuelTypeId" name="fuelTypeId">
                         <option value="">-- Wszystkie typy --</option>
-                        @foreach (var fuelType in Model.FuelTypes)
+                        @foreach (var fuelType in Model.AvailableFilters.FuelTypes)
                         {
-                            <option value="@fuelType.FuelTypeId" selected="@(Model.SelectedFuelTypeId == fuelType.FuelTypeId)">@fuelType.Name</option>
+                            <option value="@fuelType.FuelTypeId" selected="@(Model.CurrentFilters.FuelTypeId == fuelType.FuelTypeId)">@fuelType.Name</option>
                         }
                     </select>
                 </div>
@@ -84,9 +84,9 @@
                     <label for="transmissionId" class="form-label">Transmisja</label>
                     <select class="form-select" id="transmissionId" name="transmissionId">
                         <option value="">-- Wszystkie --</option>
-                        @foreach (var transmission in Model.TransmissionTypes)
+                        @foreach (var transmission in Model.AvailableFilters.TransmissionTypes)
                         {
-                            <option value="@transmission.TransmissionTypeId" selected="@(Model.SelectedTransmissionId == transmission.TransmissionTypeId)">@transmission.Name</option>
+                            <option value="@transmission.TransmissionTypeId" selected="@(Model.CurrentFilters.TransmissionId == transmission.TransmissionTypeId)">@transmission.Name</option>
                         }
                     </select>
                 </div>
@@ -96,9 +96,9 @@
                     <label for="bodyTypeId" class="form-label">Typ nadwozia</label>
                     <select class="form-select" id="bodyTypeId" name="bodyTypeId">
                         <option value="">-- Wszystkie --</option>
-                        @foreach (var bodyType in Model.BodyTypes)
+                        @foreach (var bodyType in Model.AvailableFilters.BodyTypes)
                         {
-                            <option value="@bodyType.BodyTypeId" selected="@(Model.SelectedBodyTypeId == bodyType.BodyTypeId)">@bodyType.Name</option>
+                            <option value="@bodyType.BodyTypeId" selected="@(Model.CurrentFilters.BodyTypeId == bodyType.BodyTypeId)">@bodyType.Name</option>
                         }
                     </select>
                 </div>
@@ -108,9 +108,9 @@
                     <label for="colorId" class="form-label">Kolor</label>
                     <select class="form-select" id="colorId" name="colorId">
                         <option value="">-- Wszystkie --</option>
-                        @foreach (var color in Model.Colors)
+                        @foreach (var color in Model.AvailableFilters.Colors)
                         {
-                            <option value="@color.ColorId" selected="@(Model.SelectedColorId == color.ColorId)">@color.Name</option>
+                            <option value="@color.ColorId" selected="@(Model.CurrentFilters.ColorId == color.ColorId)">@color.Name</option>
                         }
                     </select>
                 </div>
@@ -120,9 +120,9 @@
                     <label for="drivetrainId" class="form-label">Napęd</label>
                     <select class="form-select" id="drivetrainId" name="drivetrainId">
                         <option value="">-- Wszystkie --</option>
-                        @foreach (var drivetrain in Model.Drivetrains)
+                        @foreach (var drivetrain in Model.AvailableFilters.Drivetrains)
                         {
-                            <option value="@drivetrain.DrivetrainId" selected="@(Model.SelectedDrivetrainId == drivetrain.DrivetrainId)">@drivetrain.Name</option>
+                            <option value="@drivetrain.DrivetrainId" selected="@(Model.CurrentFilters.DrivetrainId == drivetrain.DrivetrainId)">@drivetrain.Name</option>
                         }
                     </select>
                 </div>
@@ -132,9 +132,9 @@
                     <label for="euroClassId" class="form-label">Klasa Euro</label>
                     <select class="form-select" id="euroClassId" name="euroClassId">
                         <option value="">-- Wszystkie --</option>
-                        @foreach (var euroClass in Model.EuroClasses)
+                        @foreach (var euroClass in Model.AvailableFilters.EuroClasses)
                         {
-                            <option value="@euroClass.EuroClassId" selected="@(Model.SelectedEuroClassId == euroClass.EuroClassId)">@euroClass.Name</option>
+                            <option value="@euroClass.EuroClassId" selected="@(Model.CurrentFilters.EuroClassId == euroClass.EuroClassId)">@euroClass.Name</option>
                         }
                     </select>
                 </div>
@@ -144,9 +144,9 @@
                     <label for="statusId" class="form-label">Status</label>
                     <select class="form-select" id="statusId" name="statusId">
                         <option value="">-- Wszystkie --</option>
-                        @foreach (var status in Model.CarStatuses)
+                        @foreach (var status in Model.AvailableFilters.CarStatuses)
                         {
-                            <option value="@status.CarStatusId" selected="@(Model.SelectedStatusId == status.CarStatusId)">@status.Name</option>
+                            <option value="@status.CarStatusId" selected="@(Model.CurrentFilters.StatusId == status.CarStatusId)">@status.Name</option>
                         }
                     </select>
                 </div>
@@ -160,16 +160,16 @@
                 <div class="col-md-4 d-flex align-items-center justify-content-end">
                     <label class="form-label me-2 mb-0"><strong>Elementy na stronie:</strong></label>
                     <div class="btn-group" role="group" aria-label="Wybór liczby elementów">
-                        <a href="@Url.Action("Cars", new { pageIndex = 1, pageSize = 10, searchTerm = Model.SearchTerm, makeId = Model.SelectedMakeId, modelId = Model.SelectedModelId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, minYear = Model.MinYear, maxYear = Model.MaxYear, fuelTypeId = Model.SelectedFuelTypeId, transmissionId = Model.SelectedTransmissionId, bodyTypeId = Model.SelectedBodyTypeId, colorId = Model.SelectedColorId, drivetrainId = Model.SelectedDrivetrainId, euroClassId = Model.SelectedEuroClassId, statusId = Model.SelectedStatusId })" 
-                           class="btn btn-sm @(Model.PageSize == 10 ? "btn-primary" : "btn-outline-primary")">
+                        <a href="@Url.Action("Cars", new { pageIndex = 1, pageSize = 10, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })" 
+                           class="btn btn-sm @(Model.Cars.PageSize == 10 ? "btn-primary" : "btn-outline-primary")">
                             10
                         </a>
-                        <a href="@Url.Action("Cars", new { pageIndex = 1, pageSize = 20, searchTerm = Model.SearchTerm, makeId = Model.SelectedMakeId, modelId = Model.SelectedModelId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, minYear = Model.MinYear, maxYear = Model.MaxYear, fuelTypeId = Model.SelectedFuelTypeId, transmissionId = Model.SelectedTransmissionId, bodyTypeId = Model.SelectedBodyTypeId, colorId = Model.SelectedColorId, drivetrainId = Model.SelectedDrivetrainId, euroClassId = Model.SelectedEuroClassId, statusId = Model.SelectedStatusId })" 
-                           class="btn btn-sm @(Model.PageSize == 20 ? "btn-primary" : "btn-outline-primary")">
+                        <a href="@Url.Action("Cars", new { pageIndex = 1, pageSize = 20, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })" 
+                           class="btn btn-sm @(Model.Cars.PageSize == 20 ? "btn-primary" : "btn-outline-primary")">
                             20
                         </a>
-                        <a href="@Url.Action("Cars", new { pageIndex = 1, pageSize = 50, searchTerm = Model.SearchTerm, makeId = Model.SelectedMakeId, modelId = Model.SelectedModelId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, minYear = Model.MinYear, maxYear = Model.MaxYear, fuelTypeId = Model.SelectedFuelTypeId, transmissionId = Model.SelectedTransmissionId, bodyTypeId = Model.SelectedBodyTypeId, colorId = Model.SelectedColorId, drivetrainId = Model.SelectedDrivetrainId, euroClassId = Model.SelectedEuroClassId, statusId = Model.SelectedStatusId })" 
-                           class="btn btn-sm @(Model.PageSize == 50 ? "btn-primary" : "btn-outline-primary")">
+                        <a href="@Url.Action("Cars", new { pageIndex = 1, pageSize = 50, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })" 
+                           class="btn btn-sm @(Model.Cars.PageSize == 50 ? "btn-primary" : "btn-outline-primary")">
                             50
                         </a>
                     </div>
@@ -179,20 +179,20 @@
     </div>
 
     <!-- Results Counter -->
-    @if (Model != null && Model.Items.Count > 0)
+    @if (Model != null && Model.Cars.Items.Count > 0)
     {
         <div class="alert alert-primary d-flex justify-content-between align-items-center mb-4">
             <div>
                 <strong>Liczba samochodów spełniających filtry:</strong>
-                <span class="badge bg-primary fs-6">@Model.TotalCount</span>
+                <span class="badge bg-primary fs-6">@Model.Cars.TotalCount</span>
             </div>
             <small class="text-muted">
-                Wyświetlane: @Model.Items.Count z @Model.TotalCount
+                Wyświetlane: @Model.Cars.Items.Count z @Model.Cars.TotalCount
             </small>
         </div>
     }
 
-    @if (Model == null || Model.Items.Count == 0)
+    @if (Model == null || Model.Cars.Items.Count == 0)
     {
         <div class="alert alert-info">
             Brak dostępnych samochodów.
@@ -200,7 +200,7 @@
     }
     else
     {
-        @foreach (var car in Model.Items)
+        @foreach (var car in Model.Cars.Items)
         {
             <div class="row mb-5 border-bottom pb-4">
                 <div class="col-md-5">
@@ -269,26 +269,26 @@
         <!-- Pagination -->
         <nav aria-label="Page navigation" class="mt-5 mb-4">
             <ul class="pagination justify-content-center">
-                <li class="page-item @(Model.PageIndex == 1 ? "disabled" : "")">
-                    <a class="page-link" href="@Url.Action("Cars", new { pageIndex = 1, pageSize = Model.PageSize, searchTerm = Model.SearchTerm, makeId = Model.SelectedMakeId, modelId = Model.SelectedModelId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, minYear = Model.MinYear, maxYear = Model.MaxYear, fuelTypeId = Model.SelectedFuelTypeId, transmissionId = Model.SelectedTransmissionId, bodyTypeId = Model.SelectedBodyTypeId, colorId = Model.SelectedColorId, drivetrainId = Model.SelectedDrivetrainId, euroClassId = Model.SelectedEuroClassId, statusId = Model.SelectedStatusId })">
+                <li class="page-item @(Model.Cars.PageIndex == 1 ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Cars", new { pageIndex = 1, pageSize = Model.Cars.PageSize, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })">
                         <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
 
-                <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
-                    <a class="page-link" href="@Url.Action("Cars", new { pageIndex = Model.PageIndex - 1, pageSize = Model.PageSize, searchTerm = Model.SearchTerm, makeId = Model.SelectedMakeId, modelId = Model.SelectedModelId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, minYear = Model.MinYear, maxYear = Model.MaxYear, fuelTypeId = Model.SelectedFuelTypeId, transmissionId = Model.SelectedTransmissionId, bodyTypeId = Model.SelectedBodyTypeId, colorId = Model.SelectedColorId, drivetrainId = Model.SelectedDrivetrainId, euroClassId = Model.SelectedEuroClassId, statusId = Model.SelectedStatusId })">
+                <li class="page-item @(!Model.Cars.HasPreviousPage ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Cars", new { pageIndex = Model.Cars.PageIndex - 1, pageSize = Model.Cars.PageSize, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })">
                         Poprzednia
                     </a>
                 </li>
 
                 @{
-                    int startPage = Math.Max(1, Model.PageIndex - 2);
-                    int endPage = Math.Min(Model.TotalPages, Model.PageIndex + 2);
+                    int startPage = Math.Max(1, Model.Cars.PageIndex - 2);
+                    int endPage = Math.Min(Model.Cars.TotalPages, Model.Cars.PageIndex + 2);
 
                     if (startPage > 1)
                     {
                         <li class="page-item">
-                            <a class="page-link" href="@Url.Action("Cars", new { pageIndex = 1, pageSize = Model.PageSize, searchTerm = Model.SearchTerm, makeId = Model.SelectedMakeId, modelId = Model.SelectedModelId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, minYear = Model.MinYear, maxYear = Model.MaxYear, fuelTypeId = Model.SelectedFuelTypeId, transmissionId = Model.SelectedTransmissionId, bodyTypeId = Model.SelectedBodyTypeId, colorId = Model.SelectedColorId, drivetrainId = Model.SelectedDrivetrainId, euroClassId = Model.SelectedEuroClassId, statusId = Model.SelectedStatusId })">1</a>
+                            <a class="page-link" href="@Url.Action("Cars", new { pageIndex = 1, pageSize = Model.Cars.PageSize, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })">1</a>
                         </li>
                         if (startPage > 2)
                         {
@@ -298,31 +298,31 @@
 
                     for (int i = startPage; i <= endPage; i++)
                     {
-                        <li class="page-item @(i == Model.PageIndex ? "active" : "")">
-                            <a class="page-link" href="@Url.Action("Cars", new { pageIndex = i, pageSize = Model.PageSize, searchTerm = Model.SearchTerm, makeId = Model.SelectedMakeId, modelId = Model.SelectedModelId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, minYear = Model.MinYear, maxYear = Model.MaxYear, fuelTypeId = Model.SelectedFuelTypeId, transmissionId = Model.SelectedTransmissionId, bodyTypeId = Model.SelectedBodyTypeId, colorId = Model.SelectedColorId, drivetrainId = Model.SelectedDrivetrainId, euroClassId = Model.SelectedEuroClassId, statusId = Model.SelectedStatusId })">@i</a>
+                        <li class="page-item @(i == Model.Cars.PageIndex ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("Cars", new { pageIndex = i, pageSize = Model.Cars.PageSize, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })">@i</a>
                         </li>
                     }
 
-                    if (endPage < Model.TotalPages)
+                    if (endPage < Model.Cars.TotalPages)
                     {
-                        if (endPage < Model.TotalPages - 1)
+                        if (endPage < Model.Cars.TotalPages - 1)
                         {
                             <li class="page-item disabled"><span class="page-link">...</span></li>
                         }
                         <li class="page-item">
-                            <a class="page-link" href="@Url.Action("Cars", new { pageIndex = Model.TotalPages, pageSize = Model.PageSize, searchTerm = Model.SearchTerm, makeId = Model.SelectedMakeId, modelId = Model.SelectedModelId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, minYear = Model.MinYear, maxYear = Model.MaxYear, fuelTypeId = Model.SelectedFuelTypeId, transmissionId = Model.SelectedTransmissionId, bodyTypeId = Model.SelectedBodyTypeId, colorId = Model.SelectedColorId, drivetrainId = Model.SelectedDrivetrainId, euroClassId = Model.SelectedEuroClassId, statusId = Model.SelectedStatusId })">@Model.TotalPages</a>
+                            <a class="page-link" href="@Url.Action("Cars", new { pageIndex = Model.Cars.TotalPages, pageSize = Model.Cars.PageSize, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })">@Model.Cars.TotalPages</a>
                         </li>
                     }
                 }
 
-                <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
-                    <a class="page-link" href="@Url.Action("Cars", new { pageIndex = Model.PageIndex + 1, pageSize = Model.PageSize, searchTerm = Model.SearchTerm, makeId = Model.SelectedMakeId, modelId = Model.SelectedModelId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, minYear = Model.MinYear, maxYear = Model.MaxYear, fuelTypeId = Model.SelectedFuelTypeId, transmissionId = Model.SelectedTransmissionId, bodyTypeId = Model.SelectedBodyTypeId, colorId = Model.SelectedColorId, drivetrainId = Model.SelectedDrivetrainId, euroClassId = Model.SelectedEuroClassId, statusId = Model.SelectedStatusId })">
+                <li class="page-item @(!Model.Cars.HasNextPage ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Cars", new { pageIndex = Model.Cars.PageIndex + 1, pageSize = Model.Cars.PageSize, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })">
                         Następna
                     </a>
                 </li>
 
-                <li class="page-item @(Model.PageIndex == Model.TotalPages ? "disabled" : "")">
-                    <a class="page-link" href="@Url.Action("Cars", new { pageIndex = Model.TotalPages, pageSize = Model.PageSize, searchTerm = Model.SearchTerm, makeId = Model.SelectedMakeId, modelId = Model.SelectedModelId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, minYear = Model.MinYear, maxYear = Model.MaxYear, fuelTypeId = Model.SelectedFuelTypeId, transmissionId = Model.SelectedTransmissionId, bodyTypeId = Model.SelectedBodyTypeId, colorId = Model.SelectedColorId, drivetrainId = Model.SelectedDrivetrainId, euroClassId = Model.SelectedEuroClassId, statusId = Model.SelectedStatusId })">
+                <li class="page-item @(Model.Cars.PageIndex == Model.Cars.TotalPages ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Cars", new { pageIndex = Model.Cars.TotalPages, pageSize = Model.Cars.PageSize, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })">
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>
@@ -337,14 +337,12 @@
         const modelSelect = document.getElementById('modelId');
 
         if (makeId === '') {
-            // Jeśli nie wybrano marki, wyświetl wszystkie modele
             fetch('@Url.Action("GetModelsByMake", "Home")?makeId=')
                 .then(response => response.json())
                 .then(data => {
                     updateModelSelect(data);
                 });
         } else {
-            // Pobierz modele dla wybranej marki
             fetch('@Url.Action("GetModelsByMake", "Home")?makeId=' + makeId)
                 .then(response => response.json())
                 .then(data => {
@@ -357,10 +355,8 @@
         const modelSelect = document.getElementById('modelId');
         const currentSelectedId = modelSelect.value;
 
-        // Wyczyść opcje oprócz domyślnej
         modelSelect.innerHTML = '<option value="">-- Wszystkie modele --</option>';
 
-        // Dodaj nowe opcje
         models.forEach(model => {
             const option = document.createElement('option');
             option.value = model.modelId;
@@ -368,7 +364,6 @@
             modelSelect.appendChild(option);
         });
 
-        // Przywróć poprzednio wybraną wartość jeśli istnieje
         if (currentSelectedId) {
             const optionExists = Array.from(modelSelect.options).some(opt => opt.value === currentSelectedId);
             if (optionExists) {
@@ -377,7 +372,6 @@
         }
     }
 
-    // Inicjalizuj modele przy wczytaniu strony
     document.addEventListener('DOMContentLoaded', function() {
         const makeId = document.getElementById('makeId').value;
         if (makeId) {
