@@ -13,7 +13,7 @@ namespace CarDealershipManager.Controllers
         private readonly CarDealershipDbContext _context;
 
         public HomeController(
-            ICarSearchService carSearchService, 
+            ICarSearchService carSearchService,
             IFilterService filterService,
             CarDealershipDbContext context)
         {

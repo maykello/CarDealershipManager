@@ -56,7 +56,7 @@ namespace CarDealershipManager.Services
 
             var searchWords = searchTerm.ToLower().Split(new[] { ' ', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
             var fullText = $"{car.Generation?.Model?.Make?.Name ?? ""} {car.Generation?.Model?.Name ?? ""} {car.Generation?.Name ?? ""}".ToLower();
-            
+
             return searchWords.All(word => fullText.Contains(word));
         }
     }

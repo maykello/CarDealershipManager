@@ -10,5 +10,5 @@ namespace CarDealershipManager.Models.Entities
         public string? Description { get; set; }
         public ICollection<CarModel> Cars { get; set; } = new List<CarModel>();
     }
-    
+
 }

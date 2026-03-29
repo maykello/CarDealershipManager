@@ -12,5 +12,5 @@ namespace CarDealershipManager.Models.Entities
         public int? CarId { get; set; }
         public required CarModel Car { get; set; }
     }
-    
+
 }
