@@ -33,6 +33,7 @@ namespace CarDealershipManager.Controllers
             string searchTerm = "",
             int? makeId = null,
             int? modelId = null,
+            int? generationId = null,
             decimal? minPrice = null,
             decimal? maxPrice = null,
             int? minYear = null,
@@ -49,7 +50,7 @@ namespace CarDealershipManager.Controllers
 
             var allCars = _carSearchService.GetAllCarsWithIncludes();
             var filterCriteria = _filterService.BuildFilterCriteria(
-                searchTerm, makeId, modelId, minPrice, maxPrice,
+                searchTerm, makeId, modelId, generationId, minPrice, maxPrice,
                 minYear, maxYear, fuelTypeId, transmissionId,
                 bodyTypeId, colorId, drivetrainId, euroClassId, statusId);
 
@@ -62,7 +63,7 @@ namespace CarDealershipManager.Controllers
                 .ToList();
 
             var paginatedList = new PaginatedList<CarModel>(paginatedCars, totalCount, pageIndex, pageSize);
-            var availableFilters = _filterService.BuildFilterOptions(makeId);
+            var availableFilters = _filterService.BuildFilterOptions(makeId, modelId);
             var searchResult = new CarSearchResult(paginatedList, filterCriteria, availableFilters, pageIndex);
 
             return View(searchResult);
@@ -89,6 +90,29 @@ namespace CarDealershipManager.Controllers
             }
 
             return Json(models);
+        }
+
+        public IActionResult GetGenerationsByModel(int? modelId)
+        {
+            List<dynamic> generations = new List<dynamic>();
+
+            if (modelId.HasValue)
+            {
+                generations = _context.Generations
+                    .Where(g => g.Model.ModelId == modelId.Value)
+                    .Select(g => new { g.GenerationId, g.Name })
+                    .Cast<dynamic>()
+                    .ToList();
+            }
+            else
+            {
+                generations = _context.Generations
+                    .Select(g => new { g.GenerationId, g.Name })
+                    .Cast<dynamic>()
+                    .ToList();
+            }
+
+            return Json(generations);
         }
 
         public IActionResult Privacy()

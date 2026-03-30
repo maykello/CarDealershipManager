@@ -36,11 +36,23 @@
                 <!-- Model Filter -->
                 <div class="col-md-6 mb-3">
                     <label for="modelId" class="form-label">Model</label>
-                    <select class="form-select" id="modelId" name="modelId">
+                    <select class="form-select" id="modelId" name="modelId" onchange="updateGenerations()">
                         <option value="">-- Wszystkie modele --</option>
                         @foreach (var carModel in Model.AvailableFilters.Models)
                         {
                             <option value="@carModel.ModelId" selected="@(Model.CurrentFilters.ModelId == carModel.ModelId)">@carModel.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Generation Filter -->
+                <div class="col-md-6 mb-3">
+                    <label for="generationId" class="form-label">Generacja</label>
+                    <select class="form-select" id="generationId" name="generationId">
+                        <option value="">-- Wszystkie generacje --</option>
+                        @foreach (var generation in Model.AvailableFilters.Generations)
+                        {
+                            <option value="@generation.GenerationId" selected="@(Model.CurrentFilters.GenerationId == generation.GenerationId)">@generation.Name</option>
                         }
                     </select>
                 </div>
@@ -160,15 +172,15 @@
                 <div class="col-md-4 d-flex align-items-center justify-content-end">
                     <label class="form-label me-2 mb-0"><strong>Elementy na stronie:</strong></label>
                     <div class="btn-group" role="group" aria-label="Wybór liczby elementów">
-                        <a href="@Url.Action("Cars", new { pageIndex = 1, pageSize = 10, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })" 
+                        <a href="@Url.Action("Cars", new { pageIndex = 1, pageSize = 10, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, generationId = Model.CurrentFilters.GenerationId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })" 
                            class="btn btn-sm @(Model.Cars.PageSize == 10 ? "btn-primary" : "btn-outline-primary")">
                             10
                         </a>
-                        <a href="@Url.Action("Cars", new { pageIndex = 1, pageSize = 20, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })" 
+                        <a href="@Url.Action("Cars", new { pageIndex = 1, pageSize = 20, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, generationId = Model.CurrentFilters.GenerationId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })" 
                            class="btn btn-sm @(Model.Cars.PageSize == 20 ? "btn-primary" : "btn-outline-primary")">
                             20
                         </a>
-                        <a href="@Url.Action("Cars", new { pageIndex = 1, pageSize = 50, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })" 
+                        <a href="@Url.Action("Cars", new { pageIndex = 1, pageSize = 50, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, generationId = Model.CurrentFilters.GenerationId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })" 
                            class="btn btn-sm @(Model.Cars.PageSize == 50 ? "btn-primary" : "btn-outline-primary")">
                             50
                         </a>
@@ -270,13 +282,13 @@
         <nav aria-label="Page navigation" class="mt-5 mb-4">
             <ul class="pagination justify-content-center">
                 <li class="page-item @(Model.Cars.PageIndex == 1 ? "disabled" : "")">
-                    <a class="page-link" href="@Url.Action("Cars", new { pageIndex = 1, pageSize = Model.Cars.PageSize, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })">
+                    <a class="page-link" href="@Url.Action("Cars", new { pageIndex = 1, pageSize = Model.Cars.PageSize, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, generationId = Model.CurrentFilters.GenerationId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })">
                         <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
 
                 <li class="page-item @(!Model.Cars.HasPreviousPage ? "disabled" : "")">
-                    <a class="page-link" href="@Url.Action("Cars", new { pageIndex = Model.Cars.PageIndex - 1, pageSize = Model.Cars.PageSize, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })">
+                    <a class="page-link" href="@Url.Action("Cars", new { pageIndex = Model.Cars.PageIndex - 1, pageSize = Model.Cars.PageSize, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, generationId = Model.CurrentFilters.GenerationId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })">
                         Poprzednia
                     </a>
                 </li>
@@ -288,7 +300,7 @@
                     if (startPage > 1)
                     {
                         <li class="page-item">
-                            <a class="page-link" href="@Url.Action("Cars", new { pageIndex = 1, pageSize = Model.Cars.PageSize, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })">1</a>
+                            <a class="page-link" href="@Url.Action("Cars", new { pageIndex = 1, pageSize = Model.Cars.PageSize, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, generationId = Model.CurrentFilters.GenerationId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })">1</a>
                         </li>
                         if (startPage > 2)
                         {
@@ -299,7 +311,7 @@
                     for (int i = startPage; i <= endPage; i++)
                     {
                         <li class="page-item @(i == Model.Cars.PageIndex ? "active" : "")">
-                            <a class="page-link" href="@Url.Action("Cars", new { pageIndex = i, pageSize = Model.Cars.PageSize, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })">@i</a>
+                            <a class="page-link" href="@Url.Action("Cars", new { pageIndex = i, pageSize = Model.Cars.PageSize, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, generationId = Model.CurrentFilters.GenerationId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })">@i</a>
                         </li>
                     }
 
@@ -310,19 +322,19 @@
                             <li class="page-item disabled"><span class="page-link">...</span></li>
                         }
                         <li class="page-item">
-                            <a class="page-link" href="@Url.Action("Cars", new { pageIndex = Model.Cars.TotalPages, pageSize = Model.Cars.PageSize, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })">@Model.Cars.TotalPages</a>
+                            <a class="page-link" href="@Url.Action("Cars", new { pageIndex = Model.Cars.TotalPages, pageSize = Model.Cars.PageSize, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, generationId = Model.CurrentFilters.GenerationId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })">@Model.Cars.TotalPages</a>
                         </li>
                     }
                 }
 
                 <li class="page-item @(!Model.Cars.HasNextPage ? "disabled" : "")">
-                    <a class="page-link" href="@Url.Action("Cars", new { pageIndex = Model.Cars.PageIndex + 1, pageSize = Model.Cars.PageSize, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })">
+                    <a class="page-link" href="@Url.Action("Cars", new { pageIndex = Model.Cars.PageIndex + 1, pageSize = Model.Cars.PageSize, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, generationId = Model.CurrentFilters.GenerationId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })">
                         Następna
                     </a>
                 </li>
 
                 <li class="page-item @(Model.Cars.PageIndex == Model.Cars.TotalPages ? "disabled" : "")">
-                    <a class="page-link" href="@Url.Action("Cars", new { pageIndex = Model.Cars.TotalPages, pageSize = Model.Cars.PageSize, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })">
+                    <a class="page-link" href="@Url.Action("Cars", new { pageIndex = Model.Cars.TotalPages, pageSize = Model.Cars.PageSize, searchTerm = Model.CurrentFilters.SearchTerm, makeId = Model.CurrentFilters.MakeId, modelId = Model.CurrentFilters.ModelId, generationId = Model.CurrentFilters.GenerationId, minPrice = Model.CurrentFilters.MinPrice, maxPrice = Model.CurrentFilters.MaxPrice, minYear = Model.CurrentFilters.MinYear, maxYear = Model.CurrentFilters.MaxYear, fuelTypeId = Model.CurrentFilters.FuelTypeId, transmissionId = Model.CurrentFilters.TransmissionId, bodyTypeId = Model.CurrentFilters.BodyTypeId, colorId = Model.CurrentFilters.ColorId, drivetrainId = Model.CurrentFilters.DrivetrainId, euroClassId = Model.CurrentFilters.EuroClassId, statusId = Model.CurrentFilters.StatusId })">
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>
@@ -332,50 +344,45 @@
 </div>
 
 <script>
-    function updateModels() {
-        const makeId = document.getElementById('makeId').value;
-        const modelSelect = document.getElementById('modelId');
+    function updateSelect(selectId, items, idField, nameField, defaultLabel, callback) {
+        const select = document.getElementById(selectId);
+        const currentValue = select.value;
+        const defaultOption = `<option value="">-- ${defaultLabel} --</option>`;
 
-        if (makeId === '') {
-            fetch('@Url.Action("GetModelsByMake", "Home")?makeId=')
-                .then(response => response.json())
-                .then(data => {
-                    updateModelSelect(data);
-                });
-        } else {
-            fetch('@Url.Action("GetModelsByMake", "Home")?makeId=' + makeId)
-                .then(response => response.json())
-                .then(data => {
-                    updateModelSelect(data);
-                });
-        }
-    }
+        select.innerHTML = defaultOption;
 
-    function updateModelSelect(models) {
-        const modelSelect = document.getElementById('modelId');
-        const currentSelectedId = modelSelect.value;
-
-        modelSelect.innerHTML = '<option value="">-- Wszystkie modele --</option>';
-
-        models.forEach(model => {
+        items.forEach(item => {
             const option = document.createElement('option');
-            option.value = model.modelId;
-            option.textContent = model.name;
-            modelSelect.appendChild(option);
+            option.value = item[idField];
+            option.textContent = item[nameField];
+            select.appendChild(option);
         });
 
-        if (currentSelectedId) {
-            const optionExists = Array.from(modelSelect.options).some(opt => opt.value === currentSelectedId);
-            if (optionExists) {
-                modelSelect.value = currentSelectedId;
-            }
+        if (currentValue && Array.from(select.options).some(opt => opt.value === currentValue)) {
+            select.value = currentValue;
         }
+
+        if (callback) callback();
+    }
+
+    function updateModels() {
+        const makeId = document.getElementById('makeId').value;
+        fetch(`@Url.Action("GetModelsByMake", "Home")?makeId=${makeId || ''}`)
+            .then(r => r.json())
+            .then(data => updateSelect('modelId', data, 'modelId', 'name', 'Wszystkie modele', updateGenerations))
+            .catch(e => console.error('Error loading models:', e));
+    }
+
+    function updateGenerations() {
+        const modelId = document.getElementById('modelId').value;
+        fetch(`@Url.Action("GetGenerationsByModel", "Home")?modelId=${modelId || ''}`)
+            .then(r => r.json())
+            .then(data => updateSelect('generationId', data, 'generationId', 'name', 'Wszystkie generacje'))
+            .catch(e => console.error('Error loading generations:', e));
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const makeId = document.getElementById('makeId').value;
-        if (makeId) {
-            updateModels();
-        }
+        if (document.getElementById('makeId').value) updateModels();
+        else if (document.getElementById('modelId').value) updateGenerations();
     });
 </script>
