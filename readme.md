@@ -14,6 +14,8 @@ Aplikacja webowa, system zarządzania komisem samochodowym dostępna na komputer
 - responsywność interfejsu
 - kompresja zdjęć pojazdów i leniwe ładowanie
 - znormalizowana baza danych
+## Aktualny schemat bazy danych z branch Development
+<img width="1293" height="605" alt="schematbazy" src="https://github.com/user-attachments/assets/f2a37eef-3e23-40fa-be43-150e5abcbec3" />
 ## Twórcy
 - Michał Mańka @ maykello
 - Jakub Bąk @ Szeladin
