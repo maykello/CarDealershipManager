@@ -36,6 +36,7 @@ namespace CarDealershipManager.Services
                 .Where(c => MatchesSearchTerm(c, criteria.SearchTerm))
                 .Where(c => !criteria.MakeId.HasValue || c.Generation?.Model?.Make?.MakeId == criteria.MakeId.Value)
                 .Where(c => !criteria.ModelId.HasValue || c.Generation?.Model?.ModelId == criteria.ModelId.Value)
+                .Where(c => !criteria.GenerationId.HasValue || c.Generation?.GenerationId == criteria.GenerationId.Value)
                 .Where(c => !criteria.MinPrice.HasValue || c.Price >= criteria.MinPrice.Value)
                 .Where(c => !criteria.MaxPrice.HasValue || c.Price <= criteria.MaxPrice.Value)
                 .Where(c => !criteria.MinYear.HasValue || c.ProductionYear >= criteria.MinYear.Value)

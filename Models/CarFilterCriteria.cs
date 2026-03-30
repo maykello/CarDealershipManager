@@ -9,6 +9,7 @@ namespace CarDealershipManager.Models
         public int? MaxYear { get; set; }
         public int? MakeId { get; set; }
         public int? ModelId { get; set; }
+        public int? GenerationId { get; set; }
         public int? FuelTypeId { get; set; }
         public int? TransmissionId { get; set; }
         public int? BodyTypeId { get; set; }

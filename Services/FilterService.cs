@@ -12,14 +12,16 @@ namespace CarDealershipManager.Services
             _context = context;
         }
 
-        public FilterOptions BuildFilterOptions(int? makeId)
+        public FilterOptions BuildFilterOptions(int? makeId, int? modelId)
         {
             var models = GetModelsForMake(makeId);
+            var generations = GetGenerationsForModel(modelId);
 
             return new FilterOptions
             {
                 Makes = _context.Makes.Cast<dynamic>().ToList().AsReadOnly(),
                 Models = models.AsReadOnly(),
+                Generations = generations.AsReadOnly(),
                 FuelTypes = _context.FuelTypes.Cast<dynamic>().ToList().AsReadOnly(),
                 TransmissionTypes = _context.TransmissionTypes.Cast<dynamic>().ToList().AsReadOnly(),
                 BodyTypes = _context.BodyTypes.Cast<dynamic>().ToList().AsReadOnly(),
@@ -30,7 +32,7 @@ namespace CarDealershipManager.Services
             };
         }
         public CarFilterCriteria BuildFilterCriteria(
-            string searchTerm, int? makeId, int? modelId, decimal? minPrice, decimal? maxPrice,
+            string searchTerm, int? makeId, int? modelId, int? generationId, decimal? minPrice, decimal? maxPrice,
             int? minYear, int? maxYear, int? fuelTypeId, int? transmissionId,
             int? bodyTypeId, int? colorId, int? drivetrainId, int? euroClassId, int? statusId)
         {
@@ -39,6 +41,7 @@ namespace CarDealershipManager.Services
                 SearchTerm = searchTerm,
                 MakeId = makeId,
                 ModelId = modelId,
+                GenerationId = generationId,
                 MinPrice = minPrice,
                 MaxPrice = maxPrice,
                 MinYear = minYear,
@@ -66,6 +69,20 @@ namespace CarDealershipManager.Services
             }
 
             return _context.Models.Cast<dynamic>().ToList();
+        }
+
+        // Pobiera listę generacji dla wybranego modelu lub wszystkie generacje jeśli model nie jest wybrany.
+        private List<dynamic> GetGenerationsForModel(int? modelId)
+        {
+            if (modelId.HasValue)
+            {
+                return _context.Generations
+                    .Where(g => g.Model.ModelId == modelId.Value)
+                    .Cast<dynamic>()
+                    .ToList();
+            }
+
+            return _context.Generations.Cast<dynamic>().ToList();
         }
     }
 }
