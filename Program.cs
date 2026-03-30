@@ -1,4 +1,5 @@
 using CarDealershipManager.Models.Entities;
+using CarDealershipManager.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,10 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 // Rejestracja DbContext
 builder.Services.AddDbContext<CarDealershipDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+// Rejestracja serwisów
+builder.Services.AddScoped<ICarSearchService, CarSearchService>();
+builder.Services.AddScoped<IFilterService, FilterService>();
 
 var app = builder.Build();
 
