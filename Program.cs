@@ -14,6 +14,12 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<CarDealershipDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+// Rejestracja AutoMapper
+builder.Services.AddAutoMapper(config =>
+{
+    config.AddProfile<MappingProfile>();
+});
+
 // Rejestracja serwisów
 builder.Services.AddScoped<ICarSearchService, CarSearchService>();
 builder.Services.AddScoped<IFilterService, FilterService>();

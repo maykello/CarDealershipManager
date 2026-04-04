@@ -1,7 +1,7 @@
 using CarDealershipManager.Models;
-using CarDealershipManager.Models.Entities;
 using CarDealershipManager.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 namespace CarDealershipManager.Controllers
@@ -10,16 +10,14 @@ namespace CarDealershipManager.Controllers
     {
         private readonly ICarSearchService _carSearchService;
         private readonly IFilterService _filterService;
-        private readonly CarDealershipDbContext _context;
 
         public HomeController(
             ICarSearchService carSearchService,
-            IFilterService filterService,
-            CarDealershipDbContext context)
+            IFilterService filterService)
+
         {
             _carSearchService = carSearchService;
             _filterService = filterService;
-            _context = context;
         }
 
         public IActionResult Index()
@@ -27,92 +25,25 @@ namespace CarDealershipManager.Controllers
             return View();
         }
 
-        public IActionResult Cars(
+        public async Task<IActionResult> Cars(
+            CarFilterCriteria criteria,
             int pageIndex = 1,
-            int pageSize = 10,
-            string searchTerm = "",
-            int? makeId = null,
-            int? modelId = null,
-            int? generationId = null,
-            decimal? minPrice = null,
-            decimal? maxPrice = null,
-            int? minYear = null,
-            int? maxYear = null,
-            int? fuelTypeId = null,
-            int? transmissionId = null,
-            int? bodyTypeId = null,
-            int? colorId = null,
-            int? drivetrainId = null,
-            int? euroClassId = null,
-            int? statusId = null)
+            int pageSize = 10)
         {
-            pageSize = PaginationValidator.ValidatePageSize(pageSize);
-
-            var allCars = _carSearchService.GetAllCarsWithIncludes();
-            var filterCriteria = _filterService.BuildFilterCriteria(
-                searchTerm, makeId, modelId, generationId, minPrice, maxPrice,
-                minYear, maxYear, fuelTypeId, transmissionId,
-                bodyTypeId, colorId, drivetrainId, euroClassId, statusId);
-
-            allCars = _carSearchService.ApplyFilters(allCars, filterCriteria);
-
-            var totalCount = allCars.Count;
-            var paginatedCars = allCars
-                .Skip((pageIndex - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
-
-            var paginatedList = new PaginatedList<CarModel>(paginatedCars, totalCount, pageIndex, pageSize);
-            var availableFilters = _filterService.BuildFilterOptions(makeId, modelId);
-            var searchResult = new CarSearchResult(paginatedList, filterCriteria, availableFilters, pageIndex);
-
+            var searchResult = await _carSearchService.SearchCarsWithFiltersAsync(criteria, pageIndex, pageSize);
             return View(searchResult);
         }
 
-        public IActionResult GetModelsByMake(int? makeId)
+        public async Task<IActionResult> GetModelsByMake(int? makeId)
         {
-            List<dynamic> models = new List<dynamic>();
-
-            if (makeId.HasValue)
-            {
-                models = _context.Models
-                    .Where(m => m.Make.MakeId == makeId.Value)
-                    .Select(m => new { m.ModelId, m.Name })
-                    .Cast<dynamic>()
-                    .ToList();
-            }
-            else
-            {
-                models = _context.Models
-                    .Select(m => new { m.ModelId, m.Name })
-                    .Cast<dynamic>()
-                    .ToList();
-            }
-
-            return Json(models);
+            var models = await _filterService.BuildFilterOptionsAsync(makeId, null);
+            return Json(models.Models);
         }
 
-        public IActionResult GetGenerationsByModel(int? modelId)
+        public async Task<IActionResult> GetGenerationsByModel(int? modelId)
         {
-            List<dynamic> generations = new List<dynamic>();
-
-            if (modelId.HasValue)
-            {
-                generations = _context.Generations
-                    .Where(g => g.Model.ModelId == modelId.Value)
-                    .Select(g => new { g.GenerationId, g.Name })
-                    .Cast<dynamic>()
-                    .ToList();
-            }
-            else
-            {
-                generations = _context.Generations
-                    .Select(g => new { g.GenerationId, g.Name })
-                    .Cast<dynamic>()
-                    .ToList();
-            }
-
-            return Json(generations);
+            var generations = await _filterService.BuildFilterOptionsAsync(null, modelId);
+            return Json(generations.Generations);
         }
 
         public IActionResult Privacy()

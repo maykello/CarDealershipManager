@@ -1,17 +1,18 @@
+using CarDealershipManager.Models.Dtos;
+
 namespace CarDealershipManager.Models
 {
-
     public class FilterOptions
     {
-        public IReadOnlyList<dynamic> Makes { get; set; } = new List<dynamic>().AsReadOnly();
-        public IReadOnlyList<dynamic> Models { get; set; } = new List<dynamic>().AsReadOnly();
-        public IReadOnlyList<dynamic> Generations { get; set; } = new List<dynamic>().AsReadOnly();
-        public IReadOnlyList<dynamic> FuelTypes { get; set; } = new List<dynamic>().AsReadOnly();
-        public IReadOnlyList<dynamic> TransmissionTypes { get; set; } = new List<dynamic>().AsReadOnly();
-        public IReadOnlyList<dynamic> BodyTypes { get; set; } = new List<dynamic>().AsReadOnly();
-        public IReadOnlyList<dynamic> Colors { get; set; } = new List<dynamic>().AsReadOnly();
-        public IReadOnlyList<dynamic> Drivetrains { get; set; } = new List<dynamic>().AsReadOnly();
-        public IReadOnlyList<dynamic> EuroClasses { get; set; } = new List<dynamic>().AsReadOnly();
-        public IReadOnlyList<dynamic> CarStatuses { get; set; } = new List<dynamic>().AsReadOnly();
+        public IReadOnlyList<MakeDto> Makes { get; set; } = new List<MakeDto>().AsReadOnly();
+        public IReadOnlyList<ModelDto> Models { get; set; } = new List<ModelDto>().AsReadOnly();
+        public IReadOnlyList<GenerationDto> Generations { get; set; } = new List<GenerationDto>().AsReadOnly();
+        public IReadOnlyList<FuelTypeDto> FuelTypes { get; set; } = new List<FuelTypeDto>().AsReadOnly();
+        public IReadOnlyList<TransmissionTypeDto> TransmissionTypes { get; set; } = new List<TransmissionTypeDto>().AsReadOnly();
+        public IReadOnlyList<BodyTypeDto> BodyTypes { get; set; } = new List<BodyTypeDto>().AsReadOnly();
+        public IReadOnlyList<ColorDto> Colors { get; set; } = new List<ColorDto>().AsReadOnly();
+        public IReadOnlyList<DrivetrainDto> Drivetrains { get; set; } = new List<DrivetrainDto>().AsReadOnly();
+        public IReadOnlyList<EuroClassDto> EuroClasses { get; set; } = new List<EuroClassDto>().AsReadOnly();
+        public IReadOnlyList<CarStatusDto> CarStatuses { get; set; } = new List<CarStatusDto>().AsReadOnly();
     }
 }

@@ -10,12 +10,6 @@ namespace CarDealershipManager.Models
 
         public PaginatedList(IEnumerable<T> items, int totalCount, int pageIndex, int pageSize)
         {
-            if (pageIndex < 1)
-                throw new ArgumentException("Page index must be greater than 0.", nameof(pageIndex));
-
-            if (pageSize < 1)
-                throw new ArgumentException("Page size must be greater than 0.", nameof(pageSize));
-
             PageIndex = pageIndex;
             PageSize = pageSize;
             TotalCount = totalCount;
