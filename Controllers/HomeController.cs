@@ -1,7 +1,6 @@
 using CarDealershipManager.Models;
 using CarDealershipManager.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 namespace CarDealershipManager.Controllers

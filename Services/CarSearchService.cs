@@ -15,8 +15,8 @@ namespace CarDealershipManager.Services
             _filterService = filterService;
         }
         public async Task<PaginatedList<CarModel>> SearchCarsAsync(
-            CarFilterCriteria criteria, 
-            int pageIndex = 1, 
+            CarFilterCriteria criteria,
+            int pageIndex = 1,
             int pageSize = 10)
         {
             var query = _context.Cars
@@ -31,7 +31,7 @@ namespace CarDealershipManager.Services
                 .Include(c => c.Drivetrain)
                 .Include(c => c.Gallery)
                 .Include(c => c.CarStatus)
-                .AsNoTracking(); 
+                .AsNoTracking();
 
             query = ApplyFiltersToQuery(query, criteria);
 
