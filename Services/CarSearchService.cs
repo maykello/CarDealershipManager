@@ -7,15 +7,19 @@ namespace CarDealershipManager.Services
     public class CarSearchService : ICarSearchService
     {
         private readonly CarDealershipDbContext _context;
+        private readonly IFilterService _filterService;
 
-        public CarSearchService(CarDealershipDbContext context)
+        public CarSearchService(CarDealershipDbContext context, IFilterService filterService)
         {
             _context = context;
+            _filterService = filterService;
         }
-
-        public List<CarModel> GetAllCarsWithIncludes()
+        public async Task<PaginatedList<CarModel>> SearchCarsAsync(
+            CarFilterCriteria criteria,
+            int pageIndex = 1,
+            int pageSize = 10)
         {
-            return _context.Cars
+            var query = _context.Cars
                 .Include(c => c.Generation)
                     .ThenInclude(g => g.Model)
                         .ThenInclude(m => m.Make)
@@ -27,38 +31,86 @@ namespace CarDealershipManager.Services
                 .Include(c => c.Drivetrain)
                 .Include(c => c.Gallery)
                 .Include(c => c.CarStatus)
-                .ToList();
+                .AsNoTracking();
+
+            query = ApplyFiltersToQuery(query, criteria);
+
+            var totalCount = await query.CountAsync();
+
+            var cars = await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PaginatedList<CarModel>(cars, totalCount, pageIndex, pageSize);
         }
 
-        public List<CarModel> ApplyFilters(List<CarModel> cars, CarFilterCriteria criteria)
+        public async Task<CarSearchResult> SearchCarsWithFiltersAsync(
+            CarFilterCriteria criteria,
+            int pageIndex = 1,
+            int pageSize = 10)
         {
-            return cars
-                .Where(c => MatchesSearchTerm(c, criteria.SearchTerm))
-                .Where(c => !criteria.MakeId.HasValue || c.Generation?.Model?.Make?.MakeId == criteria.MakeId.Value)
-                .Where(c => !criteria.ModelId.HasValue || c.Generation?.Model?.ModelId == criteria.ModelId.Value)
-                .Where(c => !criteria.GenerationId.HasValue || c.Generation?.GenerationId == criteria.GenerationId.Value)
-                .Where(c => !criteria.MinPrice.HasValue || c.Price >= criteria.MinPrice.Value)
-                .Where(c => !criteria.MaxPrice.HasValue || c.Price <= criteria.MaxPrice.Value)
-                .Where(c => !criteria.MinYear.HasValue || c.ProductionYear >= criteria.MinYear.Value)
-                .Where(c => !criteria.MaxYear.HasValue || c.ProductionYear <= criteria.MaxYear.Value)
-                .Where(c => !criteria.FuelTypeId.HasValue || c.FuelType.FuelTypeId == criteria.FuelTypeId.Value)
-                .Where(c => !criteria.TransmissionId.HasValue || c.TransmissionType.TransmissionTypeId == criteria.TransmissionId.Value)
-                .Where(c => !criteria.BodyTypeId.HasValue || (c.BodyType != null && c.BodyType.BodyTypeId == criteria.BodyTypeId.Value))
-                .Where(c => !criteria.ColorId.HasValue || (c.Color != null && c.Color.ColorId == criteria.ColorId.Value))
-                .Where(c => !criteria.DrivetrainId.HasValue || (c.Drivetrain != null && c.Drivetrain.DrivetrainId == criteria.DrivetrainId.Value))
-                .Where(c => !criteria.EuroClassId.HasValue || (c.EuroClass != null && c.EuroClass.EuroClassId == criteria.EuroClassId.Value))
-                .Where(c => !criteria.StatusId.HasValue || c.CarStatus.CarStatusId == criteria.StatusId.Value)
-                .ToList();
+            var paginatedList = await SearchCarsAsync(criteria, pageIndex, pageSize);
+            var availableFilters = await _filterService.BuildFilterOptionsAsync(criteria.MakeId, criteria.ModelId);
+
+            return new CarSearchResult(paginatedList, criteria, availableFilters);
         }
-        private bool MatchesSearchTerm(CarModel car, string searchTerm)
+
+
+        private IQueryable<CarModel> ApplyFiltersToQuery(IQueryable<CarModel> query, CarFilterCriteria criteria)
         {
-            if (string.IsNullOrWhiteSpace(searchTerm))
-                return true;
+            if (!string.IsNullOrWhiteSpace(criteria.SearchTerm))
+            {
+                var searchTerm = criteria.SearchTerm.ToLower();
+                query = query.Where(c =>
+                    EF.Functions.Like(c.Generation.Model.Make.Name, $"%{searchTerm}%") ||
+                    EF.Functions.Like(c.Generation.Model.Name, $"%{searchTerm}%") ||
+                    EF.Functions.Like(c.Generation.Name, $"%{searchTerm}%"));
+            }
 
-            var searchWords = searchTerm.ToLower().Split(new[] { ' ', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-            var fullText = $"{car.Generation?.Model?.Make?.Name ?? ""} {car.Generation?.Model?.Name ?? ""} {car.Generation?.Name ?? ""}".ToLower();
+            if (criteria.MakeId.HasValue)
+                query = query.Where(c => c.Generation.Model.Make.MakeId == criteria.MakeId.Value);
 
-            return searchWords.All(word => fullText.Contains(word));
+            if (criteria.ModelId.HasValue)
+                query = query.Where(c => c.Generation.Model.ModelId == criteria.ModelId.Value);
+
+            if (criteria.GenerationId.HasValue)
+                query = query.Where(c => c.Generation.GenerationId == criteria.GenerationId.Value);
+
+            if (criteria.MinPrice.HasValue)
+                query = query.Where(c => c.Price >= criteria.MinPrice.Value);
+
+            if (criteria.MaxPrice.HasValue)
+                query = query.Where(c => c.Price <= criteria.MaxPrice.Value);
+
+            if (criteria.MinYear.HasValue)
+                query = query.Where(c => c.ProductionYear >= criteria.MinYear.Value);
+
+            if (criteria.MaxYear.HasValue)
+                query = query.Where(c => c.ProductionYear <= criteria.MaxYear.Value);
+
+            if (criteria.FuelTypeId.HasValue)
+                query = query.Where(c => c.FuelType.FuelTypeId == criteria.FuelTypeId.Value);
+
+            if (criteria.TransmissionId.HasValue)
+                query = query.Where(c => c.TransmissionType.TransmissionTypeId == criteria.TransmissionId.Value);
+
+            if (criteria.BodyTypeId.HasValue)
+                query = query.Where(c => c.BodyType != null && c.BodyType.BodyTypeId == criteria.BodyTypeId.Value);
+
+            if (criteria.ColorId.HasValue)
+                query = query.Where(c => c.Color != null && c.Color.ColorId == criteria.ColorId.Value);
+
+            if (criteria.DrivetrainId.HasValue)
+                query = query.Where(c => c.Drivetrain != null && c.Drivetrain.DrivetrainId == criteria.DrivetrainId.Value);
+
+            if (criteria.EuroClassId.HasValue)
+                query = query.Where(c => c.EuroClass != null && c.EuroClass.EuroClassId == criteria.EuroClassId.Value);
+
+            if (criteria.StatusId.HasValue)
+                query = query.Where(c => c.CarStatus.CarStatusId == criteria.StatusId.Value);
+
+            return query;
         }
     }
 }

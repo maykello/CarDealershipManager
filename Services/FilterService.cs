@@ -1,88 +1,64 @@
+using AutoMapper;
 using CarDealershipManager.Models;
+using CarDealershipManager.Models.Dtos;
 using CarDealershipManager.Models.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace CarDealershipManager.Services
 {
     public class FilterService : IFilterService
     {
         private readonly CarDealershipDbContext _context;
+        private readonly IMapper _mapper;
 
-        public FilterService(CarDealershipDbContext context)
+        public FilterService(CarDealershipDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
-        public FilterOptions BuildFilterOptions(int? makeId, int? modelId)
+        public async Task<FilterOptions> BuildFilterOptionsAsync(int? makeId, int? modelId)
         {
-            var models = GetModelsForMake(makeId);
-            var generations = GetGenerationsForModel(modelId);
+            var models = await GetModelsForMakeAsync(makeId);
+            var generations = await GetGenerationsForModelAsync(modelId);
 
             return new FilterOptions
             {
-                Makes = _context.Makes.Cast<dynamic>().ToList().AsReadOnly(),
-                Models = models.AsReadOnly(),
-                Generations = generations.AsReadOnly(),
-                FuelTypes = _context.FuelTypes.Cast<dynamic>().ToList().AsReadOnly(),
-                TransmissionTypes = _context.TransmissionTypes.Cast<dynamic>().ToList().AsReadOnly(),
-                BodyTypes = _context.BodyTypes.Cast<dynamic>().ToList().AsReadOnly(),
-                Colors = _context.Colors.Cast<dynamic>().ToList().AsReadOnly(),
-                Drivetrains = _context.Drivetrains.Cast<dynamic>().ToList().AsReadOnly(),
-                EuroClasses = _context.EuroClasses.Cast<dynamic>().ToList().AsReadOnly(),
-                CarStatuses = _context.CarStatus.Cast<dynamic>().ToList().AsReadOnly()
-            };
-        }
-        public CarFilterCriteria BuildFilterCriteria(
-            string searchTerm, int? makeId, int? modelId, int? generationId, decimal? minPrice, decimal? maxPrice,
-            int? minYear, int? maxYear, int? fuelTypeId, int? transmissionId,
-            int? bodyTypeId, int? colorId, int? drivetrainId, int? euroClassId, int? statusId)
-        {
-            return new CarFilterCriteria
-            {
-                SearchTerm = searchTerm,
-                MakeId = makeId,
-                ModelId = modelId,
-                GenerationId = generationId,
-                MinPrice = minPrice,
-                MaxPrice = maxPrice,
-                MinYear = minYear,
-                MaxYear = maxYear,
-                FuelTypeId = fuelTypeId,
-                TransmissionId = transmissionId,
-                BodyTypeId = bodyTypeId,
-                ColorId = colorId,
-                DrivetrainId = drivetrainId,
-                EuroClassId = euroClassId,
-                StatusId = statusId
+                Makes = _mapper.Map<List<MakeDto>>(await _context.Makes.ToListAsync()).AsReadOnly(),
+                Models = _mapper.Map<List<ModelDto>>(models).AsReadOnly(),
+                Generations = _mapper.Map<List<GenerationDto>>(generations).AsReadOnly(),
+                FuelTypes = _mapper.Map<List<FuelTypeDto>>(await _context.FuelTypes.ToListAsync()).AsReadOnly(),
+                TransmissionTypes = _mapper.Map<List<TransmissionTypeDto>>(await _context.TransmissionTypes.ToListAsync()).AsReadOnly(),
+                BodyTypes = _mapper.Map<List<BodyTypeDto>>(await _context.BodyTypes.ToListAsync()).AsReadOnly(),
+                Colors = _mapper.Map<List<ColorDto>>(await _context.Colors.ToListAsync()).AsReadOnly(),
+                Drivetrains = _mapper.Map<List<DrivetrainDto>>(await _context.Drivetrains.ToListAsync()).AsReadOnly(),
+                EuroClasses = _mapper.Map<List<EuroClassDto>>(await _context.EuroClasses.ToListAsync()).AsReadOnly(),
+                CarStatuses = _mapper.Map<List<CarStatusDto>>(await _context.CarStatus.ToListAsync()).AsReadOnly()
             };
         }
 
-
-        // Pobiera listę modeli dla wybranej marki lub wszystkie modele jeśli marca nie jest wybrana.
-        private List<dynamic> GetModelsForMake(int? makeId)
+        private async Task<List<ModelModel>> GetModelsForMakeAsync(int? makeId)
         {
             if (makeId.HasValue)
             {
-                return _context.Models
+                return await _context.Models
                     .Where(m => m.Make.MakeId == makeId.Value)
-                    .Cast<dynamic>()
-                    .ToList();
+                    .ToListAsync();
             }
 
-            return _context.Models.Cast<dynamic>().ToList();
+            return await _context.Models.ToListAsync();
         }
 
-        // Pobiera listę generacji dla wybranego modelu lub wszystkie generacje jeśli model nie jest wybrany.
-        private List<dynamic> GetGenerationsForModel(int? modelId)
+        private async Task<List<GenerationModel>> GetGenerationsForModelAsync(int? modelId)
         {
             if (modelId.HasValue)
             {
-                return _context.Generations
+                return await _context.Generations
                     .Where(g => g.Model.ModelId == modelId.Value)
-                    .Cast<dynamic>()
-                    .ToList();
+                    .ToListAsync();
             }
 
-            return _context.Generations.Cast<dynamic>().ToList();
+            return await _context.Generations.ToListAsync();
         }
     }
 }

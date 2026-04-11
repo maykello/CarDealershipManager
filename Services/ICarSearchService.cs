@@ -5,8 +5,14 @@ namespace CarDealershipManager.Services
 {
     public interface ICarSearchService
     {
-        List<CarModel> GetAllCarsWithIncludes();
+        Task<PaginatedList<CarModel>> SearchCarsAsync(
+            CarFilterCriteria criteria,
+            int pageIndex = 1,
+            int pageSize = 10);
 
-        List<CarModel> ApplyFilters(List<CarModel> cars, CarFilterCriteria criteria);
+        Task<CarSearchResult> SearchCarsWithFiltersAsync(
+            CarFilterCriteria criteria,
+            int pageIndex = 1,
+            int pageSize = 10);
     }
 }
