@@ -32,13 +32,13 @@ namespace CarDealershipManager.Controllers
             var searchResult = await _carSearchService.SearchCarsWithFiltersAsync(criteria, pageIndex, pageSize);
             return View(searchResult);
         }
-
+        [HttpGet]
         public async Task<IActionResult> GetModelsByMake(int? makeId)
         {
             var models = await _filterService.BuildFilterOptionsAsync(makeId, null);
             return Json(models.Models);
         }
-
+        [HttpGet]
         public async Task<IActionResult> GetGenerationsByModel(int? modelId)
         {
             var generations = await _filterService.BuildFilterOptionsAsync(null, modelId);
