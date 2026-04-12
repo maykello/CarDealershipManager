@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
@@ -31,6 +31,10 @@
 		<Content Remove="CarDealershipManager.IntegrationTests\**" />
 		<EmbeddedResource Remove="CarDealershipManager.IntegrationTests\**" />
 		<None Remove="CarDealershipManager.IntegrationTests\**" />
+		<Compile Remove="CarDealershipManager.UnitTests\**" />
+		<Content Remove="CarDealershipManager.UnitTests\**" />
+		<EmbeddedResource Remove="CarDealershipManager.UnitTests\**" />
+		<None Remove="CarDealershipManager.UnitTests\**" />
 	</ItemGroup>
 
 </Project>
