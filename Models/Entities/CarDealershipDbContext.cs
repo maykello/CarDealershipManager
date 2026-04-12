@@ -22,6 +22,8 @@ namespace CarDealershipManager.Models.Entities
         public DbSet<AdminModel> Admins { get; set; }
         public DbSet<GalleryModel> Galleries { get; set; }
         public DbSet<FuelTypeModel> FuelTypes { get; set; }
+        public DbSet<CustomerModel> Customers { get; set; }
+        public DbSet<ContractModel> Contracts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
