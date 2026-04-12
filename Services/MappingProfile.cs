@@ -18,6 +18,8 @@ namespace CarDealershipManager.Services
             CreateMap<DrivetrainModel, DrivetrainDto>();
             CreateMap<EuroClassModel, EuroClassDto>();
             CreateMap<CarStatusModel, CarStatusDto>();
+            CreateMap<GalleryModel, GalleryDto>();
+            CreateMap<CarModel, CarDto>();
         }
     }
 }

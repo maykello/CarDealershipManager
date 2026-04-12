@@ -1,4 +1,6 @@
+using AutoMapper;
 using CarDealershipManager.Models;
+using CarDealershipManager.Models.Dtos;
 using CarDealershipManager.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,13 +10,15 @@ namespace CarDealershipManager.Services
     {
         private readonly CarDealershipDbContext _context;
         private readonly IFilterService _filterService;
+        private readonly IMapper _mapper;
 
-        public CarSearchService(CarDealershipDbContext context, IFilterService filterService)
+        public CarSearchService(CarDealershipDbContext context, IFilterService filterService, IMapper mapper)
         {
             _context = context;
             _filterService = filterService;
+            _mapper = mapper;
         }
-        public async Task<PaginatedList<CarModel>> SearchCarsAsync(
+        public async Task<PaginatedList<CarDto>> SearchCarsAsync(
             CarFilterCriteria criteria,
             int pageIndex = 1,
             int pageSize = 10)
@@ -42,7 +46,8 @@ namespace CarDealershipManager.Services
                 .Take(pageSize)
                 .ToListAsync();
 
-            return new PaginatedList<CarModel>(cars, totalCount, pageIndex, pageSize);
+            var carDtos = _mapper.Map<List<CarDto>>(cars);
+            return new PaginatedList<CarDto>(carDtos, totalCount, pageIndex, pageSize);
         }
 
         public async Task<CarSearchResult> SearchCarsWithFiltersAsync(

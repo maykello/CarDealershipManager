@@ -1,11 +1,11 @@
 using CarDealershipManager.Models;
-using CarDealershipManager.Models.Entities;
+using CarDealershipManager.Models.Dtos;
 
 namespace CarDealershipManager.Services
 {
     public interface ICarSearchService
     {
-        Task<PaginatedList<CarModel>> SearchCarsAsync(
+        Task<PaginatedList<CarDto>> SearchCarsAsync(
             CarFilterCriteria criteria,
             int pageIndex = 1,
             int pageSize = 10);
