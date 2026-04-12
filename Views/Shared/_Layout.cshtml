@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -30,6 +30,19 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                     </ul>
+                    <ul class="navbar-nav">
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item d-flex align-items-center">
+                                <span class="navbar-text me-3 px-2 rounded bg-success text-white user-select-none">Tryb Administratora</span>
+                            </li>
+                            <li class="nav-item">
+                                <form class="form-inline m-0 p-0" asp-controller="Admin" asp-action="Logout" method="post">
+                                    <button type="submit" class="nav-link btn btn-link text-dark border-0">Wyloguj</button>
+                                </form>
+                            </li>
+                        }
+                    </ul>
                 </div>
             </div>
         </nav>
@@ -49,5 +62,29 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <div class="modal fade" id="sessionTimeoutModal" tabindex="-1" aria-labelledby="sessionTimeoutModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+          <div class="modal-dialog">
+            <div class="modal-content border-warning">
+              <div class="modal-header bg-warning">
+                <h5 class="modal-title text-dark" id="sessionTimeoutModalLabel">Sesja wygasa</h5>
+              </div>
+              <div class="modal-body">
+                Ze względów bezpieczeństwa Twoja sesja wygaśnie automatycznie z powodu braku aktywności w ciągu <strong id="sessionCountdown" class="text-danger fs-5">60</strong> sekund. Wszelkie niezapisane formularze będą utracone. <br/><br/> Czy chcesz przedłużyć sesję?
+              </div>
+              <div class="modal-footer">
+                <form id="logoutFormModal" asp-controller="Admin" asp-action="Logout" method="post" class="m-0">
+                   <button type="submit" class="btn btn-secondary">Nie, wyloguj mnie</button>
+                </form>
+                <button id="extendSessionBtn" class="btn btn-primary" data-url="@Url.Action("KeepAlive", "Admin")">
+                    Przedłuż sesję
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>       
+    }
 </body>
 </html>

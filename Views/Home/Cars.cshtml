@@ -7,6 +7,14 @@
 <div class="container mt-5">
     <h1 class="mb-4">Nasze samochody</h1>
 
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <div class="mb-4">
+            <a href="#" class="btn btn-success fw-bold p-2">+ Dodaj nowy pojazd do wyceny</a>
+            <span class="text-muted ms-3">Dostępne tylko w trybie administratora. Placeholder akcji...</span>
+        </div>
+    }
+
     <!-- Search and Filter Form -->
     <div class="mb-5 p-4 border rounded bg-light">
         <h5 class="mb-4">Filtry</h5>
@@ -274,6 +282,16 @@
                         <h4 class="text-primary mb-0">@car.Price.ToString("C")</h4>
                         <span class="badge bg-success fs-6">@car.CarStatus?.Name</span>
                     </div>
+
+                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    {
+                        <div class="mt-4 pt-3 border-top d-flex justify-content-end gap-2">
+                            <a href="#" class="btn btn-sm btn-outline-primary">Edytuj</a>
+                            <form action="#" method="post" onsubmit="return confirm('Czy na pewno chcesz usunąć ten pojazd? To tylko placeholder akcji.');" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Usuń</button>
+                            </form>
+                        </div>
+                    }
                 </div>
             </div>
         }

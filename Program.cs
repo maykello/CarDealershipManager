@@ -1,5 +1,7 @@
 using CarDealershipManager.Models.Entities;
 using CarDealershipManager.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,8 +25,26 @@ builder.Services.AddAutoMapper(config =>
 // Rejestracja serwisów
 builder.Services.AddScoped<ICarSearchService, CarSearchService>();
 builder.Services.AddScoped<IFilterService, FilterService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+// Serwer przechowuje dane szyfrujące wyłącznie w RAM - odcięcie zasilania to automatyczne wylogowanie wszystkich
+builder.Services.AddDataProtection()
+    .UseEphemeralDataProtectionProvider();
+
+// Konfiguracja uwierzytelniania ciasteczkami
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Admin/Login";
+        options.LogoutPath = "/Admin/Logout";
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+        options.SlidingExpiration = true; 
+    });
 
 var app = builder.Build();
+
+// Seedowanie domyślnego konta admina, jeśli nie istnieje
+await DataSeeder.SeedAdminAsync(app.Services);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -37,6 +57,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
