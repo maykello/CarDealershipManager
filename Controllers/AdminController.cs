@@ -64,6 +64,96 @@ namespace CarDealershipManager.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordDto model)
+        {
+            if (ModelState.IsValid)
+            {
+                var success = await _authService.ResetPasswordByEmailAsync(model.Email);
+                if (success)
+                {
+                    ViewBag.SuccessMessage = "Jeśli podany email istnieje w bazie, wysłano na niego nowe, tymczasowe hasło.";
+                    ModelState.Clear();
+                    return View(new ForgotPasswordDto());
+                }
+                else
+                {
+                    ViewBag.SuccessMessage = "Jeśli podany email istnieje w bazie, wysłano na niego nowe, tymczasowe hasło.";
+                    ModelState.Clear();
+                    return View(new ForgotPasswordDto());
+                }
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Panel()
+        {
+            var userName = User.Identity?.Name;
+            if (string.IsNullOrEmpty(userName)) return RedirectToAction("Login");
+
+            var admin = await _authService.GetAdminByUserNameAsync(userName);
+            if (admin == null) return RedirectToAction("Login");
+
+            var model = new AdminSettingsDto
+            {
+                Email = admin.Email
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Panel(AdminSettingsDto model)
+        {
+            var userName = User.Identity?.Name;
+            if (string.IsNullOrEmpty(userName)) return RedirectToAction("Login");
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            if (!string.IsNullOrEmpty(model.NewPassword) && model.NewPassword != model.ConfirmNewPassword)
+            {
+                ModelState.AddModelError("ConfirmNewPassword", "Pola nowych haseł nie są identyczne.");
+                return View(model);
+            }
+
+            var success = await _authService.UpdateAdminSettingsAsync(userName, model.CurrentPassword, model.Email, model.NewPassword);
+
+            if (success)
+            {
+                ViewBag.SuccessMessage = "Ustawienia zostały pomyślnie zapisane.";
+                ModelState.Clear();
+                model.CurrentPassword = "";
+                model.NewPassword = "";
+                model.ConfirmNewPassword = "";
+                return View(model);
+            }
+            else
+            {
+                ModelState.AddModelError("CurrentPassword", "Obecne hasło jest nieprawidłowe.");
+                return View(model);
+            }
+        }
+
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]

@@ -1,0 +1,77 @@
+@model CarDealershipManager.Models.Dtos.AdminSettingsDto
+
+@{
+    ViewData["Title"] = "Panel Administratora";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <h3 class="text-center mb-4">Ustawienia Konta Administratora</h3>
+            
+            @if (ViewBag.SuccessMessage != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @ViewBag.SuccessMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white rounded-top">
+                    <h5 class="mb-0">Zmiana danych logowania</h5>
+                </div>
+                <div class="card-body bg-light">
+                    <form asp-controller="Admin" asp-action="Panel" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-4">
+                            <label asp-for="Email" class="form-label fw-bold"></label>
+                            <input asp-for="Email" class="form-control" type="email" placeholder="Wpisz nowy adres email" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <hr class="my-4 text-muted" />
+                        <h6 class="mb-3 fw-bold text-secondary">Zmiana hasła (opcjonalnie)</h6>
+
+                        <div class="mb-3">
+                            <label asp-for="NewPassword" class="form-label"></label>
+                            <input asp-for="NewPassword" class="form-control" type="password" placeholder="Wpisz nowe hasło" value="@Model?.NewPassword" />
+                            <span asp-validation-for="NewPassword" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="ConfirmNewPassword" class="form-label"></label>
+                            <input asp-for="ConfirmNewPassword" class="form-control" type="password" placeholder="Potwierdź nowe hasło" value="@Model?.ConfirmNewPassword" />
+                            <span asp-validation-for="ConfirmNewPassword" class="text-danger"></span>
+                        </div>
+
+                        <hr class="my-4 text-muted" />
+                        
+                        <div class="alert alert-warning shadow-sm border-warning">
+                            Aby zapisać jakiekolwiek zmiany, musisz autoryzować operację aktualnym hasłem.
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="CurrentPassword" class="form-label fw-bold"></label>
+                            <input asp-for="CurrentPassword" class="form-control border-warning" type="password" placeholder="Wpisz aktualne hasło" autocomplete="off" />
+                            <span asp-validation-for="CurrentPassword" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg shadow">Zapisz ustawienia</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <a asp-controller="Home" asp-action="Index" class="text-decoration-none">Wróć na stronę główną</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
