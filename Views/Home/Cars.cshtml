@@ -237,13 +237,15 @@
                 </div>
 
                 <div class="col-md-7">
-                    <h3 class="mb-3">
-                        @car.Generation?.Model?.Make?.Name @car.Generation?.Model?.Name
-                        @if (!string.IsNullOrEmpty(car.Generation?.Name))
-                        {
-                            <span>- @car.Generation.Name</span>
-                        }
-                    </h3>
+                    <a href="@Url.Action("Details", new { id = car.CarId })" class="text-decoration-none text-dark">
+                        <h3 class="mb-3">
+                            @car.Generation?.Model?.Make?.Name @car.Generation?.Model?.Name
+                            @if (!string.IsNullOrEmpty(car.Generation?.Name))
+                            {
+                                <span>- @car.Generation.Name</span>
+                            }
+                        </h3>
+                    </a>
 
                     <div class="mb-3">
                         <p class="mb-2"><strong>Rok produkcji:</strong> @car.ProductionYear</p>
@@ -280,7 +282,12 @@
 
                     <div class="d-flex justify-content-between align-items-center">
                         <h4 class="text-primary mb-0">@car.Price.ToString("C")</h4>
-                        <span class="badge bg-success fs-6">@car.CarStatus?.Name</span>
+                        <div class="d-flex gap-2 align-items-center">
+                            <span class="badge bg-success fs-6">@car.CarStatus?.Name</span>
+                            <a href="@Url.Action("Details", new { id = car.CarId })" class="btn btn-sm btn-primary">
+                                Szczegóły
+                            </a>
+                        </div>
                     </div>
 
                     @if (User.Identity != null && User.Identity.IsAuthenticated)
