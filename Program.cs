@@ -38,7 +38,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/Admin/Login";
         options.LogoutPath = "/Admin/Logout";
         options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
-        options.SlidingExpiration = true; 
+        options.SlidingExpiration = true;
     });
 
 var app = builder.Build();

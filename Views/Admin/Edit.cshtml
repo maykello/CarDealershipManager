@@ -1,0 +1,340 @@
+@model CarDealershipManager.Models.Dtos.CarDto
+
+@{
+    ViewData["Title"] = $"Edytuj {Model.Generation?.Model?.Make?.Name} {Model.Generation?.Model?.Name}";
+}
+
+<div class="container mt-5 mb-5">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mb-4">Edytuj Pojazd</h1>
+
+            <form asp-action="Edit" method="post" class="needs-validation" novalidate>
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="CarId" />
+
+                <!-- Wyświetlanie błędów walidacji -->
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Błędy walidacji:</strong>
+                        <ul class="mb-0">
+                            @foreach (var modelState in ViewData.ModelState.Values)
+                            {
+                                @foreach (var error in modelState.Errors)
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            }
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                <div class="row">
+                    <!-- Informacje Podstawowe -->
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">Informacje Podstawowe</h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Marka -->
+                                <div class="mb-3">
+                                    <label asp-for="MakeId" class="form-label">
+                                        <strong>Marka</strong>
+                                    </label>
+                                    <select asp-for="MakeId" asp-items="ViewBag.MakeId" 
+                                        class="form-select" id="makeSelect">
+                                        <option value="">Wybierz markę pojazdu</option>
+                                    </select>
+                                </div>
+
+                                <!-- Model -->
+                                <div class="mb-3">
+                                    <label asp-for="ModelId" class="form-label">
+                                        <strong>Model</strong>
+                                    </label>
+                                    <select asp-for="ModelId" asp-items="ViewBag.ModelId" 
+                                        class="form-select" id="modelSelect">
+                                        <option value="">Wybierz model pojazdu</option>
+                                    </select>
+                                </div>
+
+                                <!-- Generacja -->
+                                <div class="mb-3">
+                                    <label asp-for="GenerationId" class="form-label">
+                                        <strong>Generacja</strong> <span class="text-danger">*</span>
+                                    </label>
+                                    <select asp-for="GenerationId" asp-items="ViewBag.GenerationId" 
+                                        class="form-select" id="generationSelect" required>
+                                        <option value="">Wybierz generację pojazdu</option>
+                                    </select>
+                                </div>
+
+                                <!-- Rok Produkcji -->
+                                <div class="mb-3">
+                                    <label asp-for="ProductionYear" class="form-label">
+                                        <strong>Rok Produkcji</strong> <span class="text-danger">*</span>
+                                    </label>
+                                    <input asp-for="ProductionYear" type="number" min="1900" max="2099" 
+                                        class="form-control" required />
+                                    <span asp-validation-for="ProductionYear" class="text-danger small"></span>
+                                </div>
+
+                                <!-- Moc Silnika -->
+                                <div class="mb-3">
+                                    <label asp-for="HorsePower" class="form-label">
+                                        <strong>Moc Silnika (KM)</strong> <span class="text-danger">*</span>
+                                    </label>
+                                    <input asp-for="HorsePower" type="number" min="0" 
+                                        class="form-control" required />
+                                    <span asp-validation-for="HorsePower" class="text-danger small"></span>
+                                </div>
+
+                                <!-- Przebieg -->
+                                <div class="mb-3">
+                                    <label asp-for="Mileage" class="form-label">
+                                        <strong>Przebieg (km)</strong> <span class="text-danger">*</span>
+                                    </label>
+                                    <input asp-for="Mileage" type="number" min="0" 
+                                        class="form-control" required />
+                                    <span asp-validation-for="Mileage" class="text-danger small"></span>
+                                </div>
+
+                                <!-- Numer VIN -->
+                                <div class="mb-3">
+                                    <label asp-for="Vin" class="form-label">
+                                        <strong>Numer VIN</strong> <span class="text-danger">*</span>
+                                    </label>
+                                    <input asp-for="Vin" class="form-control font-monospace" 
+                                        maxlength="17" required />
+                                    <span asp-validation-for="Vin" class="text-danger small"></span>
+                                </div>
+
+                                <!-- Cena -->
+                                <div class="mb-3">
+                                    <label asp-for="Price" class="form-label">
+                                        <strong>Cena (PLN)</strong> <span class="text-danger">*</span>
+                                    </label>
+                                    <input asp-for="Price" type="number" min="0" step="0.01" 
+                                        class="form-control" required />
+                                    <span asp-validation-for="Price" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Szczegóły Techniczne -->
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0">Szczegóły Techniczne</h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Typ Paliwa -->
+                                <div class="mb-3">
+                                    <label asp-for="FuelTypeId" class="form-label">
+                                        <strong>Typ Paliwa</strong> <span class="text-danger">*</span>
+                                    </label>
+                                    <select asp-for="FuelTypeId" asp-items="ViewBag.FuelTypeId" 
+                                        class="form-select" required>
+                                        <option value="">Wybierz typ paliwa</option>
+                                    </select>
+                                </div>
+
+                                <!-- Transmisja -->
+                                <div class="mb-3">
+                                    <label asp-for="TransmissionTypeId" class="form-label">
+                                        <strong>Typ Transmisji</strong>
+                                    </label>
+                                    <select asp-for="TransmissionTypeId" 
+                                        asp-items="ViewBag.TransmissionTypeId" class="form-select">
+                                        <option value="">Wybierz typ transmisji</option>
+                                    </select>
+                                </div>
+
+                                <!-- Napęd -->
+                                <div class="mb-3">
+                                    <label asp-for="DrivetrainId" class="form-label">
+                                        <strong>Napęd</strong>
+                                    </label>
+                                    <select asp-for="DrivetrainId" asp-items="ViewBag.DrivetrainId" 
+                                        class="form-select">
+                                        <option value="">Wybierz typ napędu</option>
+                                    </select>
+                                </div>
+
+                                <!-- Typ Nadwozia -->
+                                <div class="mb-3">
+                                    <label asp-for="BodyTypeId" class="form-label">
+                                        <strong>Typ Nadwozia</strong>
+                                    </label>
+                                    <select asp-for="BodyTypeId" asp-items="ViewBag.BodyTypeId" 
+                                        class="form-select">
+                                        <option value="">Wybierz typ nadwozia</option>
+                                    </select>
+                                </div>
+
+                                <!-- Kolor -->
+                                <div class="mb-3">
+                                    <label asp-for="ColorId" class="form-label">
+                                        <strong>Kolor</strong>
+                                    </label>
+                                    <select asp-for="ColorId" asp-items="ViewBag.ColorId" 
+                                        class="form-select">
+                                        <option value="">Wybierz kolor</option>
+                                    </select>
+                                </div>
+
+                                <!-- Klasa Euro -->
+                                <div class="mb-3">
+                                    <label asp-for="EuroClassId" class="form-label">
+                                        <strong>Klasa Euro</strong>
+                                    </label>
+                                    <select asp-for="EuroClassId" asp-items="ViewBag.EuroClassId" 
+                                        class="form-select">
+                                        <option value="">Wybierz klasę Euro</option>
+                                    </select>
+                                </div>
+
+                                <!-- Status Pojazdu -->
+                                <div class="mb-3">
+                                    <label asp-for="CarStatusId" class="form-label">
+                                        <strong>Status Pojazdu</strong> <span class="text-danger">*</span>
+                                    </label>
+                                    <select asp-for="CarStatusId" asp-items="ViewBag.CarStatusId" 
+                                        class="form-select" required>
+                                        <option value="">Wybierz status pojazdu</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Opis -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Dodatkowe Informacje</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">
+                                <strong>Opis Pojazdu</strong>
+                            </label>
+                            <textarea asp-for="Description" class="form-control" rows="5" 
+                                placeholder="Dodaj szczegółowy opis pojazdu, stan techniczny, serwis itp."></textarea>
+                            <small class="text-muted">Maksymalnie 2000 znaków</small>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Przyciski Akcji -->
+                <div class="d-flex gap-2 mb-5">
+                    <button type="submit" class="btn btn-warning btn-lg">
+                        <i class="bi bi-check-circle"></i> Zapisz Zmiany
+                    </button>
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-secondary btn-lg">
+                        <i class="bi bi-x-circle"></i> Anuluj
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const makeSelect = document.getElementById('makeSelect');
+            const modelSelect = document.getElementById('modelSelect');
+            const generationSelect = document.getElementById('generationSelect');
+
+            // Funkcja do załadowania modeli
+            function loadModels(makeId, selectedModelId = null, selectedGenerationId = null) {
+                modelSelect.innerHTML = '<option value="">Wybierz model pojazdu</option>';
+                generationSelect.innerHTML = '<option value="">Wybierz generację pojazdu</option>';
+
+                if (makeId) {
+                    fetch(`/Admin/GetModelsByMake?makeId=${makeId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            data.forEach(model => {
+                                const option = document.createElement('option');
+                                option.value = model.id;
+                                option.textContent = model.name;
+                                if (selectedModelId && model.id == selectedModelId) {
+                                    option.selected = true;
+                                }
+                                modelSelect.appendChild(option);
+                            });
+
+                            if (selectedModelId) {
+                                loadGenerations(selectedModelId, selectedGenerationId);
+                            }
+                        });
+                }
+            }
+
+            // Funkcja do załadowania generacji
+            function loadGenerations(modelId, selectedGenerationId = null) {
+                generationSelect.innerHTML = '<option value="">Wybierz generację pojazdu</option>';
+
+                if (modelId) {
+                    fetch(`/Admin/GetGenerationsByModel?modelId=${modelId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            data.forEach(generation => {
+                                const option = document.createElement('option');
+                                option.value = generation.id;
+                                option.textContent = generation.name;
+                                if (selectedGenerationId && generation.id == selectedGenerationId) {
+                                    option.selected = true;
+                                }
+                                generationSelect.appendChild(option);
+                            });
+                        });
+                }
+            }
+
+
+            makeSelect.addEventListener('change', function () {
+                loadModels(this.value);
+            });
+
+
+            modelSelect.addEventListener('change', function () {
+                loadGenerations(this.value);
+            });
+
+
+            const initialMakeId = makeSelect.value;
+            const initialModelId = modelSelect.value;
+            const initialGenerationId = generationSelect.value;
+
+            if (initialMakeId) {
+                loadModels(initialMakeId, initialModelId, initialGenerationId);
+            }
+        });
+
+        // Bootstrap form validation
+        (function () {
+            'use strict';
+            window.addEventListener('load', function () {
+                var forms = document.getElementsByClassName('needs-validation');
+                var validation = Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    </script>
+}

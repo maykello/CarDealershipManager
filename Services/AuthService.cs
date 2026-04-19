@@ -15,7 +15,7 @@ namespace CarDealershipManager.Services
         public async Task<bool> ValidateAdminCredentialsAsync(string userName, string password)
         {
             var admin = await _context.Admins.FirstOrDefaultAsync(a => a.UserName == userName);
-            
+
             if (admin == null)
             {
                 return false;

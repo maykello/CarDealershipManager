@@ -10,6 +10,17 @@ namespace CarDealershipManager.Models.Dtos
         public decimal Price { get; set; }
         public string? Description { get; set; }
 
+        public int? MakeId { get; set; }
+        public int? ModelId { get; set; }
+        public int? GenerationId { get; set; }
+        public int? FuelTypeId { get; set; }
+        public int? TransmissionTypeId { get; set; }
+        public int? DrivetrainId { get; set; }
+        public int? BodyTypeId { get; set; }
+        public int? ColorId { get; set; }
+        public int? EuroClassId { get; set; }
+        public int? CarStatusId { get; set; }
+
         public GenerationDto? Generation { get; set; }
         public TransmissionTypeDto? TransmissionType { get; set; }
         public DrivetrainDto? Drivetrain { get; set; }
