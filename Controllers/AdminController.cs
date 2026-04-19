@@ -65,6 +65,41 @@ namespace CarDealershipManager.Controllers
         }
 
         [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordDto model)
+        {
+            if (ModelState.IsValid)
+            {
+                var success = await _authService.ResetPasswordByEmailAsync(model.Email);
+                if (success)
+                {
+                    ViewBag.SuccessMessage = "Jeśli podany email istnieje w bazie, wysłano na niego nowe, tymczasowe hasło.";
+                    ModelState.Clear();
+                    return View(new ForgotPasswordDto());
+                }
+                else
+                {
+                    ViewBag.SuccessMessage = "Jeśli podany email istnieje w bazie, wysłano na niego nowe, tymczasowe hasło.";
+                    ModelState.Clear();
+                    return View(new ForgotPasswordDto());
+                }
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
         [Authorize]
         public async Task<IActionResult> Panel()
         {

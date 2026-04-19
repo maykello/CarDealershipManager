@@ -33,7 +33,7 @@ namespace CarDealershipManager.UnitTests
             });
             await dbContext.SaveChangesAsync();
 
-            var authService = new AuthService(dbContext);
+            var authService = new AuthService(dbContext, null!);
 
             var isCredentialValid = await authService.ValidateAdminCredentialsAsync("superAdmin", "MojePrawdziweHaslo123");
 
@@ -54,7 +54,7 @@ namespace CarDealershipManager.UnitTests
             });
             await dbContext.SaveChangesAsync();
 
-            var authService = new AuthService(dbContext);
+            var authService = new AuthService(dbContext, null!);
 
             var isCredentialValid = await authService.ValidateAdminCredentialsAsync("zwyklyAdmin", "ZleHaslo1!");
 
@@ -66,7 +66,7 @@ namespace CarDealershipManager.UnitTests
         {
             var dbContext = GetInMemoryDbContext();
             
-            var authService = new AuthService(dbContext);
+            var authService = new AuthService(dbContext, null!);
 
             var isCredentialValid = await authService.ValidateAdminCredentialsAsync("nieistnieje", "ZleHaslo1!");
 
