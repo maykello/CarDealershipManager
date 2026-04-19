@@ -32,6 +32,15 @@ namespace CarDealershipManager.Controllers
             var searchResult = await _carSearchService.SearchCarsWithFiltersAsync(criteria, pageIndex, pageSize);
             return View(searchResult);
         }
+
+        public async Task<IActionResult> Details(int id)
+        {
+            var car = await _carSearchService.GetCarByIdAsync(id);
+            if (car == null)
+                return NotFound();
+            return View(car);
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetModelsByMake(int? makeId)
         {

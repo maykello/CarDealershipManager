@@ -14,5 +14,7 @@ namespace CarDealershipManager.Services
             CarFilterCriteria criteria,
             int pageIndex = 1,
             int pageSize = 10);
+
+        Task<CarDto> GetCarByIdAsync(int carId);
     }
 }

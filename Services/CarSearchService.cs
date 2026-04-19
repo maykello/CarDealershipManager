@@ -117,5 +117,26 @@ namespace CarDealershipManager.Services
 
             return query;
         }
+
+        public async Task<CarDto> GetCarByIdAsync(int carId)
+        {
+            var car = await _context.Cars
+                .Include(c => c.Generation)
+                    .ThenInclude(g => g.Model)
+                        .ThenInclude(m => m.Make)
+                .Include(c => c.TransmissionType)
+                .Include(c => c.BodyType)
+                .Include(c => c.FuelType)
+                .Include(c => c.EuroClass)
+                .Include(c => c.Color)
+                .Include(c => c.Drivetrain)
+                .Include(c => c.Gallery)
+                .Include(c => c.CarStatus)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.CarId == carId);
+
+            return car == null ? null : _mapper.Map<CarDto>(car);
+        }
     }
 }
+
