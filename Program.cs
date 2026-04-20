@@ -26,6 +26,7 @@ builder.Services.AddAutoMapper(config =>
 builder.Services.AddScoped<ICarSearchService, CarSearchService>();
 builder.Services.AddScoped<IFilterService, FilterService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICarAdminService, CarAdminService>();
 
 // Serwer przechowuje dane szyfrujące wyłącznie w RAM - odcięcie zasilania to automatyczne wylogowanie wszystkich
 builder.Services.AddDataProtection()
