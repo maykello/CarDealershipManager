@@ -1,5 +1,6 @@
 using CarDealershipManager.Models.Entities;
 using CarDealershipManager.Services;
+using CarDealershipManager.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;

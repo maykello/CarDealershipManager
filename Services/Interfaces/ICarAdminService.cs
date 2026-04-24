@@ -1,7 +1,7 @@
 using CarDealershipManager.Models;
 using CarDealershipManager.Models.Dtos;
 
-namespace CarDealershipManager.Services
+namespace CarDealershipManager.Services.Interfaces
 {
     public interface ICarAdminService
     {

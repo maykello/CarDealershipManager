@@ -1,6 +1,6 @@
 using CarDealershipManager.Models;
 
-namespace CarDealershipManager.Services
+namespace CarDealershipManager.Services.Interfaces
 {
     public interface IFilterService
     {

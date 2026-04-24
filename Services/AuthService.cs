@@ -1,4 +1,5 @@
 using CarDealershipManager.Models.Entities;
+using CarDealershipManager.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace CarDealershipManager.Services

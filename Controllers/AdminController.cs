@@ -1,6 +1,6 @@
 using CarDealershipManager.Models;
 using CarDealershipManager.Models.Dtos;
-using CarDealershipManager.Services;
+using CarDealershipManager.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;

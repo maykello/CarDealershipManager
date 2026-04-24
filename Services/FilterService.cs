@@ -2,6 +2,7 @@ using AutoMapper;
 using CarDealershipManager.Models;
 using CarDealershipManager.Models.Dtos;
 using CarDealershipManager.Models.Entities;
+using CarDealershipManager.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace CarDealershipManager.Services
