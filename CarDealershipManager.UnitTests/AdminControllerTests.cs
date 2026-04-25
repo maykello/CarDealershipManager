@@ -5,6 +5,7 @@ using CarDealershipManager.Models;
 using CarDealershipManager.Models.Dtos;
 using CarDealershipManager.Models.ViewModels;
 using CarDealershipManager.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Moq;
@@ -442,6 +443,60 @@ namespace CarDealershipManager.UnitTests
             Assert.NotNull(jsonResult.Value);
 
             mockCarAdminService.Verify(s => s.GetGenerationsByModelAsync(1), Times.Once);
+        }
+
+        [Fact]
+        public async Task Delete_POST_ZPoprawnymId_UsuwaSamochodIPrzekierowuje()
+        {
+            // Arrange
+            var mockCarAdminService = new Mock<ICarAdminService>();
+            mockCarAdminService.Setup(s => s.DeleteCarAsync(It.IsAny<int>()))
+                .Returns(Task.CompletedTask);
+
+            var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
+
+            // Act
+            var result = await controller.Delete(1);
+
+            // Assert
+            var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+            Assert.Equal("Index", redirectResult.ActionName);
+            Assert.Equal("Home", redirectResult.ControllerName);
+
+            mockCarAdminService.Verify(s => s.DeleteCarAsync(1), Times.Once);
+        }
+
+        [Fact]
+        public async Task Delete_POST_ZIdNieznajdującegoCar_ZwracaNotFound()
+        {
+            // Arrange
+            var mockCarAdminService = new Mock<ICarAdminService>();
+            mockCarAdminService.Setup(s => s.DeleteCarAsync(It.IsAny<int>()))
+                .ThrowsAsync(new KeyNotFoundException("Car not found"));
+
+            var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
+
+            // Act
+            var result = await controller.Delete(999);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+
+            mockCarAdminService.Verify(s => s.DeleteCarAsync(999), Times.Once);
+        }
+
+        [Fact]
+        public async Task Delete_POST_BezAutoryzacji_ShouldHaveAuthorizeAttribute()
+        {
+            // Arrange
+            var mockCarAdminService = new Mock<ICarAdminService>();
+            var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
+
+            // Assert - Verify that Delete method has Authorize attribute
+            var deleteMethod = typeof(AdminController).GetMethod("Delete");
+            var authorizeAttribute = deleteMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false);
+            Assert.NotNull(authorizeAttribute);
+            Assert.NotEmpty(authorizeAttribute);
         }
     }
 }

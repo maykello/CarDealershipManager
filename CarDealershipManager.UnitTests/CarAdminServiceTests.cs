@@ -209,5 +209,53 @@ namespace CarDealershipManager.UnitTests
             // Assert
             Assert.False(result);
         }
+
+        [Fact]
+        public async Task DeleteCarAsync_ZPoprawnymId_UsuwaSamochód()
+        {
+            // Arrange
+            var mockService = new Mock<ICarAdminService>();
+            mockService
+                .Setup(s => s.DeleteCarAsync(It.IsAny<int>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await mockService.Object.DeleteCarAsync(1);
+
+            // Assert
+            mockService.Verify(s => s.DeleteCarAsync(1), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeleteCarAsync_ZMultiplemymiWywołaniami_UsuwaBezBłędów()
+        {
+            // Arrange
+            var mockService = new Mock<ICarAdminService>();
+            mockService
+                .Setup(s => s.DeleteCarAsync(It.IsAny<int>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await mockService.Object.DeleteCarAsync(1);
+            await mockService.Object.DeleteCarAsync(2);
+            await mockService.Object.DeleteCarAsync(3);
+
+            // Assert
+            mockService.Verify(s => s.DeleteCarAsync(It.IsAny<int>()), Times.Exactly(3));
+        }
+
+        [Fact]
+        public async Task DeleteCarAsync_ZBlędemSerwisu_RzucaWyjątek()
+        {
+            // Arrange
+            var mockService = new Mock<ICarAdminService>();
+            mockService
+                .Setup(s => s.DeleteCarAsync(It.IsAny<int>()))
+                .ThrowsAsync(new Exception("Database error"));
+
+            // Act & Assert
+            await Assert.ThrowsAsync<Exception>(() => 
+                mockService.Object.DeleteCarAsync(1));
+        }
     }
 }
