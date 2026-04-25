@@ -1,7 +1,7 @@
-@model CarDealershipManager.Models.Dtos.CarDto
+@model CarDealershipManager.Models.ViewModels.CarFormViewModel
 
 @{
-    ViewData["Title"] = $"Edytuj {Model.Generation?.Model?.Make?.Name} {Model.Generation?.Model?.Name}";
+    ViewData["Title"] = $"Edytuj {Model.Car.Generation?.Model?.Make?.Name} {Model.Car.Generation?.Model?.Name}";
 }
 
 <div class="container mt-5 mb-5">
@@ -11,7 +11,7 @@
 
             <form asp-action="Edit" method="post" class="needs-validation" novalidate>
                 @Html.AntiForgeryToken()
-                <input type="hidden" asp-for="CarId" />
+                <input type="hidden" asp-for="Car.CarId" />
 
                 <!-- Wyświetlanie błędów walidacji -->
                 @if (!ViewData.ModelState.IsValid)
@@ -41,10 +41,10 @@
                             <div class="card-body">
                                 <!-- Marka -->
                                 <div class="mb-3">
-                                    <label asp-for="MakeId" class="form-label">
+                                    <label asp-for="Car.MakeId" class="form-label">
                                         <strong>Marka</strong>
                                     </label>
-                                    <select asp-for="MakeId" asp-items="ViewBag.MakeId" 
+                                    <select asp-for="Car.MakeId" asp-items="Model.Makes" 
                                         class="form-select" id="makeSelect">
                                         <option value="">Wybierz markę pojazdu</option>
                                     </select>
@@ -52,10 +52,10 @@
 
                                 <!-- Model -->
                                 <div class="mb-3">
-                                    <label asp-for="ModelId" class="form-label">
+                                    <label asp-for="Car.ModelId" class="form-label">
                                         <strong>Model</strong>
                                     </label>
-                                    <select asp-for="ModelId" asp-items="ViewBag.ModelId" 
+                                    <select asp-for="Car.ModelId" asp-items="Model.Models" 
                                         class="form-select" id="modelSelect">
                                         <option value="">Wybierz model pojazdu</option>
                                     </select>
@@ -63,10 +63,10 @@
 
                                 <!-- Generacja -->
                                 <div class="mb-3">
-                                    <label asp-for="GenerationId" class="form-label">
+                                    <label asp-for="Car.GenerationId" class="form-label">
                                         <strong>Generacja</strong> <span class="text-danger">*</span>
                                     </label>
-                                    <select asp-for="GenerationId" asp-items="ViewBag.GenerationId" 
+                                    <select asp-for="Car.GenerationId" asp-items="Model.Generations" 
                                         class="form-select" id="generationSelect" required>
                                         <option value="">Wybierz generację pojazdu</option>
                                     </select>
@@ -74,52 +74,52 @@
 
                                 <!-- Rok Produkcji -->
                                 <div class="mb-3">
-                                    <label asp-for="ProductionYear" class="form-label">
+                                    <label asp-for="Car.ProductionYear" class="form-label">
                                         <strong>Rok Produkcji</strong> <span class="text-danger">*</span>
                                     </label>
-                                    <input asp-for="ProductionYear" type="number" min="1900" max="2099" 
+                                    <input asp-for="Car.ProductionYear" type="number" min="1900" max="2099" 
                                         class="form-control" required />
-                                    <span asp-validation-for="ProductionYear" class="text-danger small"></span>
+                                    <span asp-validation-for="Car.ProductionYear" class="text-danger small"></span>
                                 </div>
 
                                 <!-- Moc Silnika -->
                                 <div class="mb-3">
-                                    <label asp-for="HorsePower" class="form-label">
+                                    <label asp-for="Car.HorsePower" class="form-label">
                                         <strong>Moc Silnika (KM)</strong> <span class="text-danger">*</span>
                                     </label>
-                                    <input asp-for="HorsePower" type="number" min="0" 
+                                    <input asp-for="Car.HorsePower" type="number" min="0" 
                                         class="form-control" required />
-                                    <span asp-validation-for="HorsePower" class="text-danger small"></span>
+                                    <span asp-validation-for="Car.HorsePower" class="text-danger small"></span>
                                 </div>
 
                                 <!-- Przebieg -->
                                 <div class="mb-3">
-                                    <label asp-for="Mileage" class="form-label">
+                                    <label asp-for="Car.Mileage" class="form-label">
                                         <strong>Przebieg (km)</strong> <span class="text-danger">*</span>
                                     </label>
-                                    <input asp-for="Mileage" type="number" min="0" 
+                                    <input asp-for="Car.Mileage" type="number" min="0" 
                                         class="form-control" required />
-                                    <span asp-validation-for="Mileage" class="text-danger small"></span>
+                                    <span asp-validation-for="Car.Mileage" class="text-danger small"></span>
                                 </div>
 
                                 <!-- Numer VIN -->
                                 <div class="mb-3">
-                                    <label asp-for="Vin" class="form-label">
+                                    <label asp-for="Car.Vin" class="form-label">
                                         <strong>Numer VIN</strong> <span class="text-danger">*</span>
                                     </label>
-                                    <input asp-for="Vin" class="form-control font-monospace" 
+                                    <input asp-for="Car.Vin" class="form-control font-monospace" 
                                         maxlength="17" required />
-                                    <span asp-validation-for="Vin" class="text-danger small"></span>
+                                    <span asp-validation-for="Car.Vin" class="text-danger small"></span>
                                 </div>
 
                                 <!-- Cena -->
                                 <div class="mb-3">
-                                    <label asp-for="Price" class="form-label">
+                                    <label asp-for="Car.Price" class="form-label">
                                         <strong>Cena (PLN)</strong> <span class="text-danger">*</span>
                                     </label>
-                                    <input asp-for="Price" type="number" min="0" step="0.01" 
+                                    <input asp-for="Car.Price" type="number" min="0" step="0.01" 
                                         class="form-control" required />
-                                    <span asp-validation-for="Price" class="text-danger small"></span>
+                                    <span asp-validation-for="Car.Price" class="text-danger small"></span>
                                 </div>
                             </div>
                         </div>
@@ -134,10 +134,10 @@
                             <div class="card-body">
                                 <!-- Typ Paliwa -->
                                 <div class="mb-3">
-                                    <label asp-for="FuelTypeId" class="form-label">
+                                    <label asp-for="Car.FuelTypeId" class="form-label">
                                         <strong>Typ Paliwa</strong> <span class="text-danger">*</span>
                                     </label>
-                                    <select asp-for="FuelTypeId" asp-items="ViewBag.FuelTypeId" 
+                                    <select asp-for="Car.FuelTypeId" asp-items="Model.FuelTypes" 
                                         class="form-select" required>
                                         <option value="">Wybierz typ paliwa</option>
                                     </select>
@@ -145,21 +145,21 @@
 
                                 <!-- Transmisja -->
                                 <div class="mb-3">
-                                    <label asp-for="TransmissionTypeId" class="form-label">
+                                    <label asp-for="Car.TransmissionTypeId" class="form-label">
                                         <strong>Typ Transmisji</strong>
                                     </label>
-                                    <select asp-for="TransmissionTypeId" 
-                                        asp-items="ViewBag.TransmissionTypeId" class="form-select">
+                                    <select asp-for="Car.TransmissionTypeId" 
+                                        asp-items="Model.TransmissionTypes" class="form-select">
                                         <option value="">Wybierz typ transmisji</option>
                                     </select>
                                 </div>
 
                                 <!-- Napęd -->
                                 <div class="mb-3">
-                                    <label asp-for="DrivetrainId" class="form-label">
+                                    <label asp-for="Car.DrivetrainId" class="form-label">
                                         <strong>Napęd</strong>
                                     </label>
-                                    <select asp-for="DrivetrainId" asp-items="ViewBag.DrivetrainId" 
+                                    <select asp-for="Car.DrivetrainId" asp-items="Model.Drivetrains" 
                                         class="form-select">
                                         <option value="">Wybierz typ napędu</option>
                                     </select>
@@ -167,10 +167,10 @@
 
                                 <!-- Typ Nadwozia -->
                                 <div class="mb-3">
-                                    <label asp-for="BodyTypeId" class="form-label">
+                                    <label asp-for="Car.BodyTypeId" class="form-label">
                                         <strong>Typ Nadwozia</strong>
                                     </label>
-                                    <select asp-for="BodyTypeId" asp-items="ViewBag.BodyTypeId" 
+                                    <select asp-for="Car.BodyTypeId" asp-items="Model.BodyTypes" 
                                         class="form-select">
                                         <option value="">Wybierz typ nadwozia</option>
                                     </select>
@@ -178,10 +178,10 @@
 
                                 <!-- Kolor -->
                                 <div class="mb-3">
-                                    <label asp-for="ColorId" class="form-label">
+                                    <label asp-for="Car.ColorId" class="form-label">
                                         <strong>Kolor</strong>
                                     </label>
-                                    <select asp-for="ColorId" asp-items="ViewBag.ColorId" 
+                                    <select asp-for="Car.ColorId" asp-items="Model.Colors" 
                                         class="form-select">
                                         <option value="">Wybierz kolor</option>
                                     </select>
@@ -189,10 +189,10 @@
 
                                 <!-- Klasa Euro -->
                                 <div class="mb-3">
-                                    <label asp-for="EuroClassId" class="form-label">
+                                    <label asp-for="Car.EuroClassId" class="form-label">
                                         <strong>Klasa Euro</strong>
                                     </label>
-                                    <select asp-for="EuroClassId" asp-items="ViewBag.EuroClassId" 
+                                    <select asp-for="Car.EuroClassId" asp-items="Model.EuroClasses" 
                                         class="form-select">
                                         <option value="">Wybierz klasę Euro</option>
                                     </select>
@@ -200,10 +200,10 @@
 
                                 <!-- Status Pojazdu -->
                                 <div class="mb-3">
-                                    <label asp-for="CarStatusId" class="form-label">
+                                    <label asp-for="Car.CarStatusId" class="form-label">
                                         <strong>Status Pojazdu</strong> <span class="text-danger">*</span>
                                     </label>
-                                    <select asp-for="CarStatusId" asp-items="ViewBag.CarStatusId" 
+                                    <select asp-for="Car.CarStatusId" asp-items="Model.CarStatuses" 
                                         class="form-select" required>
                                         <option value="">Wybierz status pojazdu</option>
                                     </select>
@@ -220,13 +220,13 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label asp-for="Description" class="form-label">
+                            <label asp-for="Car.Description" class="form-label">
                                 <strong>Opis Pojazdu</strong>
                             </label>
-                            <textarea asp-for="Description" class="form-control" rows="5" 
+                            <textarea asp-for="Car.Description" class="form-control" rows="5" 
                                 placeholder="Dodaj szczegółowy opis pojazdu, stan techniczny, serwis itp."></textarea>
                             <small class="text-muted">Maksymalnie 2000 znaków</small>
-                            <span asp-validation-for="Description" class="text-danger small"></span>
+                            <span asp-validation-for="Car.Description" class="text-danger small"></span>
                         </div>
                     </div>
                 </div>

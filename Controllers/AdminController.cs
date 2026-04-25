@@ -1,5 +1,6 @@
 using CarDealershipManager.Models;
 using CarDealershipManager.Models.Dtos;
+using CarDealershipManager.Models.ViewModels;
 using CarDealershipManager.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -83,22 +84,23 @@ namespace CarDealershipManager.Controllers
         [Authorize]
         public async Task<IActionResult> Create()
         {
-            await PopulateSelectListsAsync();
-            return View(new CarDto());
+            var viewModel = new CarFormViewModel();
+            await PopulateSelectListsAsync(viewModel);
+            return View(viewModel);
         }
 
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CarDto carDto)
+        public async Task<IActionResult> Create(CarFormViewModel viewModel)
         {
             if (!ModelState.IsValid)
             {
-                await PopulateSelectListsAsync();
-                return View(carDto);
+                await PopulateSelectListsAsync(viewModel);
+                return View(viewModel);
             }
 
-            await _carAdminService.CreateCarAsync(carDto);
+            await _carAdminService.CreateCarAsync(viewModel.Car);
             return RedirectToAction("Index", "Home");
         }
 
@@ -114,24 +116,25 @@ namespace CarDealershipManager.Controllers
                 return NotFound();
             }
 
-            await PopulateSelectListsAsync();
-            return View(carDto);
+            var viewModel = new CarFormViewModel { Car = carDto };
+            await PopulateSelectListsAsync(viewModel);
+            return View(viewModel);
         }
 
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, CarDto carDto)
+        public async Task<IActionResult> Edit(int id, CarFormViewModel viewModel)
         {
-            if (id != carDto.CarId)
+            if (id != viewModel.Car.CarId)
             {
                 return BadRequest();
             }
 
             if (!ModelState.IsValid)
             {
-                await PopulateSelectListsAsync();
-                return View(carDto);
+                await PopulateSelectListsAsync(viewModel);
+                return View(viewModel);
             }
 
             try
@@ -142,7 +145,7 @@ namespace CarDealershipManager.Controllers
                     return NotFound();
                 }
 
-                await _carAdminService.UpdateCarAsync(id, carDto);
+                await _carAdminService.UpdateCarAsync(id, viewModel.Car);
                 return RedirectToAction("Index", "Home");
             }
             catch (KeyNotFoundException)
@@ -187,18 +190,18 @@ namespace CarDealershipManager.Controllers
             return Json(generations);
         }
 
-        private async Task PopulateSelectListsAsync()
+        private async Task PopulateSelectListsAsync(CarFormViewModel viewModel)
         {
-            ViewBag.MakeId = new SelectList(await _carAdminService.GetMakesAsync(), "Id", "Name");
-            ViewBag.ModelId = new SelectList(await _carAdminService.GetModelsAsync(), "Id", "Name");
-            ViewBag.GenerationId = new SelectList(await _carAdminService.GetGenerationsAsync(), "Id", "Name");
-            ViewBag.TransmissionTypeId = new SelectList(await _carAdminService.GetTransmissionTypesAsync(), "Id", "Name");
-            ViewBag.DrivetrainId = new SelectList(await _carAdminService.GetDrivetrainsAsync(), "Id", "Name");
-            ViewBag.BodyTypeId = new SelectList(await _carAdminService.GetBodyTypesAsync(), "Id", "Name");
-            ViewBag.EuroClassId = new SelectList(await _carAdminService.GetEuroClassesAsync(), "Id", "Name");
-            ViewBag.ColorId = new SelectList(await _carAdminService.GetColorsAsync(), "Id", "Name");
-            ViewBag.FuelTypeId = new SelectList(await _carAdminService.GetFuelTypesAsync(), "Id", "Name");
-            ViewBag.CarStatusId = new SelectList(await _carAdminService.GetCarStatusesAsync(), "Id", "Name");
+            viewModel.Makes = new SelectList(await _carAdminService.GetMakesAsync(), "Id", "Name");
+            viewModel.Models = new SelectList(await _carAdminService.GetModelsAsync(), "Id", "Name");
+            viewModel.Generations = new SelectList(await _carAdminService.GetGenerationsAsync(), "Id", "Name");
+            viewModel.TransmissionTypes = new SelectList(await _carAdminService.GetTransmissionTypesAsync(), "Id", "Name");
+            viewModel.Drivetrains = new SelectList(await _carAdminService.GetDrivetrainsAsync(), "Id", "Name");
+            viewModel.BodyTypes = new SelectList(await _carAdminService.GetBodyTypesAsync(), "Id", "Name");
+            viewModel.EuroClasses = new SelectList(await _carAdminService.GetEuroClassesAsync(), "Id", "Name");
+            viewModel.Colors = new SelectList(await _carAdminService.GetColorsAsync(), "Id", "Name");
+            viewModel.FuelTypes = new SelectList(await _carAdminService.GetFuelTypesAsync(), "Id", "Name");
+            viewModel.CarStatuses = new SelectList(await _carAdminService.GetCarStatusesAsync(), "Id", "Name");
         }
     }
 }
