@@ -1,5 +1,6 @@
 using CarDealershipManager.Models.Entities;
 using CarDealershipManager.Services;
+using CarDealershipManager.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +30,7 @@ builder.Services.AddScoped<ICarSearchService, CarSearchService>();
 builder.Services.AddScoped<IFilterService, FilterService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<ICarAdminService, CarAdminService>();
 
 // Serwer przechowuje dane szyfrujące wyłącznie w RAM - odcięcie zasilania to automatyczne wylogowanie wszystkich
 builder.Services.AddDataProtection()
@@ -41,7 +43,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/Admin/Login";
         options.LogoutPath = "/Admin/Logout";
         options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
-        options.SlidingExpiration = true; 
+        options.SlidingExpiration = true;
     });
 
 var app = builder.Build();

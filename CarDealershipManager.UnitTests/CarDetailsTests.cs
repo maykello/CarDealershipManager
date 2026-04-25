@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CarDealershipManager.Controllers;
 using CarDealershipManager.Models.Dtos;
-using CarDealershipManager.Services;
+using CarDealershipManager.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Xunit;

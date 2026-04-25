@@ -1,4 +1,4 @@
-namespace CarDealershipManager.Services
+namespace CarDealershipManager.Services.Interfaces
 {
     public interface IAuthService
     {

@@ -10,8 +10,7 @@
     @if (User.Identity != null && User.Identity.IsAuthenticated)
     {
         <div class="mb-4">
-            <a href="#" class="btn btn-success fw-bold p-2">+ Dodaj nowy pojazd do wyceny</a>
-            <span class="text-muted ms-3">Dostępne tylko w trybie administratora. Placeholder akcji...</span>
+            <a href="@Url.Action("Create", "Admin")" class="btn btn-success fw-bold p-2">+ Dodaj nowy pojazd</a>
         </div>
     }
 
@@ -293,10 +292,13 @@
                     @if (User.Identity != null && User.Identity.IsAuthenticated)
                     {
                         <div class="mt-4 pt-3 border-top d-flex justify-content-end gap-2">
-                            <a href="#" class="btn btn-sm btn-outline-primary">Edytuj</a>
-                            <form action="#" method="post" onsubmit="return confirm('Czy na pewno chcesz usunąć ten pojazd? To tylko placeholder akcji.');" class="d-inline">
-                                <button type="submit" class="btn btn-sm btn-outline-danger">Usuń</button>
-                            </form>
+                            <a href="@Url.Action("Edit", "Admin", new { id = car.CarId })" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i> Edytuj
+                            </a>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" 
+                                onclick="document.getElementById('deleteCarId').value = '@car.CarId'; document.getElementById('deleteCarName').innerText = '@car.Generation?.Model?.Make?.Name @car.Generation?.Model?.Name';">
+                                <i class="bi bi-trash"></i> Usuń
+                            </button>
                         </div>
                     }
                 </div>
@@ -411,3 +413,29 @@
         else if (document.getElementById('modelId').value) updateGenerations();
     });
 </script>
+
+<!-- Modal Potwierdzenia Usunięcia -->
+@if (User.Identity != null && User.Identity.IsAuthenticated)
+{
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteModalLabel">Potwierdź Usunięcie Pojazdu</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+                </div>
+                <div class="modal-body">
+                    Czy na pewno chcesz usunąć pojazd <strong id="deleteCarName"></strong>? Ta operacja nie może być cofnięta.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                    <form method="post" action="@Url.Action("Delete", "Admin")" style="display: inline;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" id="deleteCarId" name="id" />
+                        <button type="submit" class="btn btn-danger">Usuń Pojazd</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
