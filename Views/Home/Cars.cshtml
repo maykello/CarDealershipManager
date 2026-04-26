@@ -225,7 +225,8 @@
                 <div class="col-md-5">
                     @if (car.Gallery != null && car.Gallery.Any())
                     {
-                        <img src="@car.Gallery.First().FilePath" class="img-fluid rounded" alt="@car.Generation?.Model?.Make?.Name @car.Generation?.Model?.Name" style="height: 350px; object-fit: cover; width: 100%;">
+                        var mainPhoto = car.Gallery.FirstOrDefault(g => g.IsMain) ?? car.Gallery.First();
+                        <img src="@mainPhoto.FilePath" class="img-fluid rounded" alt="@car.Generation?.Model?.Make?.Name @car.Generation?.Model?.Name" style="height: 350px; object-fit: cover; width: 100%;">
                     }
                     else
                     {
