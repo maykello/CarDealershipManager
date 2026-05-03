@@ -216,10 +216,11 @@ namespace CarDealershipManager.UnitTests
 
             // Assert
             var redirectResult = Assert.IsType<RedirectToActionResult>(result);
-            Assert.Equal("Index", redirectResult.ActionName);
+            Assert.Equal("Details", redirectResult.ActionName);
             Assert.Equal("Home", redirectResult.ControllerName);
+            Assert.Equal(1, redirectResult.RouteValues["id"]);
 
-            mockCarAdminService.Verify(s => s.UpdateCarAsync(1, It.IsAny<CarDto>()), Times.Once);
+            mockCarAdminService.Verify(s => s.UpdateCarAsync(1, It.IsAny<CarDto>(), It.IsAny<List<Microsoft.AspNetCore.Http.IFormFile>>(), It.IsAny<string>()), Times.Once);
         }
 
         [Fact]
@@ -391,6 +392,94 @@ namespace CarDealershipManager.UnitTests
             Assert.NotNull(jsonResult.Value);
 
             mockCarAdminService.Verify(s => s.GetGenerationsByModelAsync(1), Times.Once);
+        }
+
+        #endregion
+
+        #region Photo Management Endpoints Tests
+
+        [Fact]
+        public async Task DeletePhoto_POST_ZPoprawnymId_ZwracaOk()
+        {
+            // Test sprawdza:
+            // - POST DeletePhoto z poprawnym ID zwraca status OK
+            // - Serwis zwraca true dla operacji usunięcia
+            // Arrange
+            var mockCarAdminService = new Mock<ICarAdminService>();
+            mockCarAdminService.Setup(s => s.DeletePhotoByIdAsync(1))
+                .ReturnsAsync(true);
+
+            var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
+
+            // Act
+            var result = await controller.DeletePhoto(1);
+
+            // Assert
+            Assert.IsType<OkResult>(result);
+            mockCarAdminService.Verify(s => s.DeletePhotoByIdAsync(1), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeletePhoto_POST_ZBlednymId_ZwracaBadRequest()
+        {
+            // Test sprawdza:
+            // - POST DeletePhoto z błędnym ID zwraca status BadRequest
+            // - Serwis zwraca false dla operacji usunięcia
+            // Arrange
+            var mockCarAdminService = new Mock<ICarAdminService>();
+            mockCarAdminService.Setup(s => s.DeletePhotoByIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(false);
+
+            var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
+
+            // Act
+            var result = await controller.DeletePhoto(999);
+
+            // Assert
+            Assert.IsType<BadRequestResult>(result);
+            mockCarAdminService.Verify(s => s.DeletePhotoByIdAsync(999), Times.Once);
+        }
+
+        [Fact]
+        public async Task SetMainPhoto_POST_ZPoprawnymId_ZwracaOk()
+        {
+            // Test sprawdza:
+            // - POST SetMainPhoto z poprawnymi ID auta i zdjęcia zwraca status OK
+            // - Serwis zwraca true dla operacji ustawienia zdjęcia głównego
+            // Arrange
+            var mockCarAdminService = new Mock<ICarAdminService>();
+            mockCarAdminService.Setup(s => s.SetMainPhotoAsync(1, 2))
+                .ReturnsAsync(true);
+
+            var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
+
+            // Act
+            var result = await controller.SetMainPhoto(1, 2);
+
+            // Assert
+            Assert.IsType<OkResult>(result);
+            mockCarAdminService.Verify(s => s.SetMainPhotoAsync(1, 2), Times.Once);
+        }
+
+        [Fact]
+        public async Task SetMainPhoto_POST_ZBlednymId_ZwracaBadRequest()
+        {
+            // Test sprawdza:
+            // - POST SetMainPhoto z błędnym ID zdjęcia/auta zwraca status BadRequest
+            // - Serwis zwraca false dla operacji ustawienia zdjęcia głównego
+            // Arrange
+            var mockCarAdminService = new Mock<ICarAdminService>();
+            mockCarAdminService.Setup(s => s.SetMainPhotoAsync(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(false);
+
+            var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
+
+            // Act
+            var result = await controller.SetMainPhoto(999, 999);
+
+            // Assert
+            Assert.IsType<BadRequestResult>(result);
+            mockCarAdminService.Verify(s => s.SetMainPhotoAsync(999, 999), Times.Once);
         }
 
         #endregion
