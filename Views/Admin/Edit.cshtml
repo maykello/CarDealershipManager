@@ -9,9 +9,10 @@
         <div class="col-md-12">
             <h1 class="mb-4">Edytuj Pojazd</h1>
 
-            <form asp-action="Edit" method="post" class="needs-validation" novalidate>
+            <form asp-action="Edit" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                 @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="Car.CarId" />
+                <input type="hidden" asp-for="MainPhotoFilename" id="MainPhotoFilename" />
 
                 <!-- Wyświetlanie błędów walidacji -->
                 @if (!ViewData.ModelState.IsValid)
@@ -213,6 +214,53 @@
                     </div>
                 </div>
 
+                @if (Model.Car.Gallery != null && Model.Car.Gallery.Any())
+                {
+                    <div class="card mb-4" id="galleryContainer">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="mb-0">Zarządzaj wgranymi zdjęciami</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex flex-wrap gap-3" id="existingGallery">
+                                @foreach (var photo in Model.Car.Gallery.OrderByDescending(g => g.IsMain))
+                                {
+                                    <div class="position-relative" id="photo-@photo.PhotoId">
+                                        <img src="@photo.FilePath" class="rounded border" style="width: 150px; height: 150px; object-fit: cover;" />
+                                        
+                                        <div class="position-absolute top-0 end-0 p-1">
+                                            <button type="button" class="btn btn-sm btn-danger" title="Usuń" onclick="deletePhoto(@photo.PhotoId)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                        <div class="position-absolute bottom-0 start-0 p-1">
+                                            <button type="button" class="btn btn-sm @(photo.IsMain ? "btn-warning" : "btn-light")" title="Ustaw jako okładkę" onclick="setMainPhoto(@Model.Car.CarId, @photo.PhotoId)" id="btnMain-@photo.PhotoId">
+                                                <i class="bi bi-star-fill"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Zdjęcia -->
+                <div class="card mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">Dodaj następne zdjęcia pojazdu</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label asp-for="Photos" class="form-label">
+                                <strong>Wybierz zdjęcia do dodania</strong>
+                            </label>
+                            <input asp-for="Photos" type="file" multiple class="form-control" accept="image/*" id="photoInput" />
+                            <small class="text-muted">Aktualnie wgrane zdjęcia nie zostaną usunięte.</small>
+                        </div>
+                        <div id="imagePreviews" class="d-flex flex-wrap gap-2 mt-3"></div>
+                    </div>
+                </div>
+
                 <!-- Opis -->
                 <div class="card mb-4">
                     <div class="card-header bg-info text-white">
@@ -318,7 +366,133 @@
             if (initialMakeId) {
                 loadModels(initialMakeId, initialModelId, initialGenerationId);
             }
+
+            // Podgląd plików
+            const photoInput = document.getElementById('photoInput');
+            const imagePreviews = document.getElementById('imagePreviews');
+            let accumulatedFiles = [];
+
+            function updateInputAndPreviews() {
+                const dt = new DataTransfer();
+                accumulatedFiles.forEach(f => dt.items.add(f));
+                photoInput.files = dt.files;
+                
+                imagePreviews.innerHTML = '';
+                accumulatedFiles.forEach((file, index) => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const wrapper = document.createElement('div');
+                            wrapper.className = 'position-relative';
+                            
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.classList.add('rounded', 'border');
+                            img.style.width = '120px';
+                            img.style.height = '120px';
+                            img.style.objectFit = 'cover';
+                            
+                            const removeBtn = document.createElement('button');
+                            removeBtn.innerHTML = '<i class="bi bi-x"></i>';
+                            removeBtn.className = 'btn btn-sm btn-danger position-absolute top-0 end-0 p-0 rounded-circle';
+                            removeBtn.style.width = '24px';
+                            removeBtn.style.height = '24px';
+                            removeBtn.title = 'Usuń to dodane zdjęcie z listy przed wgraniem';
+                            removeBtn.onclick = function(ev) {
+                                ev.preventDefault();
+                                accumulatedFiles.splice(index, 1);
+                                if (document.getElementById('MainPhotoFilename').value === file.name) {
+                                    document.getElementById('MainPhotoFilename').value = '';
+                                }
+                                updateInputAndPreviews();
+                            };
+                            
+                            const mainBtn = document.createElement('button');
+                            mainBtn.innerHTML = '<i class="bi bi-star-fill"></i>';
+                            
+                            if (document.getElementById('MainPhotoFilename').value === file.name) {
+                                mainBtn.className = 'btn btn-sm btn-warning position-absolute bottom-0 start-0 p-1 new-main-btn';
+                            } else {
+                                mainBtn.className = 'btn btn-sm btn-light position-absolute bottom-0 start-0 p-1 new-main-btn';
+                            }
+                            
+                            mainBtn.title = 'Ustaw jako okładkę';
+                            mainBtn.onclick = function(ev) {
+                                ev.preventDefault();
+                                document.querySelectorAll('.new-main-btn').forEach(btn => {
+                                    btn.classList.remove('btn-warning');
+                                    btn.classList.add('btn-light');
+                                });
+                                document.querySelectorAll('button[id^="btnMain-"]').forEach(btn => {
+                                    btn.classList.remove('btn-warning');
+                                    btn.classList.add('btn-light');
+                                });
+                                mainBtn.classList.remove('btn-light');
+                                mainBtn.classList.add('btn-warning');
+                                document.getElementById('MainPhotoFilename').value = file.name;
+                            };
+                            
+                            wrapper.appendChild(img);
+                            wrapper.appendChild(removeBtn);
+                            wrapper.appendChild(mainBtn);
+                            imagePreviews.appendChild(wrapper);
+                        }
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            if(photoInput) {
+                photoInput.addEventListener('change', function(e) {
+                    if (e.target.files.length > 0) {
+                        Array.from(e.target.files).forEach(f => accumulatedFiles.push(f));
+                        updateInputAndPreviews();
+                    }
+                });
+            }
         });
+
+        function deletePhoto(photoId) {
+            if(confirm("Czy na pewno usunąć to zdjęcie? Zostanie ono skasowane trwale z serwera oraz bazy danych.")) {
+                fetch('/Admin/DeletePhoto', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `photoId=${photoId}&__RequestVerificationToken=${document.querySelector('input[name="__RequestVerificationToken"]').value}`
+                })
+                .then(r => {
+                    if(r.ok) {
+                        document.getElementById('photo-' + photoId).remove();
+                    } else alert('Błąd podczas usuwania. Sprawdź opcje w kontrolerze.');
+                });
+            }
+        }
+
+        function setMainPhoto(carId, photoId) {
+            fetch('/Admin/SetMainPhoto', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `carId=${carId}&photoId=${photoId}&__RequestVerificationToken=${document.querySelector('input[name="__RequestVerificationToken"]').value}`
+            })
+            .then(r => {
+                if(r.ok) {
+                    document.querySelectorAll('button[id^="btnMain-"]').forEach(btn => {
+                        btn.classList.remove('btn-warning');
+                        btn.classList.add('btn-light');
+                    });
+                    const targetBtn = document.getElementById('btnMain-' + photoId);
+                    if(targetBtn) {
+                        targetBtn.classList.remove('btn-light');
+                        targetBtn.classList.add('btn-warning');
+                    }
+                    
+                    document.querySelectorAll('.new-main-btn').forEach(btn => {
+                        btn.classList.remove('btn-warning');
+                        btn.classList.add('btn-light');
+                    });
+                    document.getElementById('MainPhotoFilename').value = '';
+                } else alert('Błąd podczas ustawiania zdjęcia.');
+            });
+        }
 
         // Bootstrap form validation
         (function () {

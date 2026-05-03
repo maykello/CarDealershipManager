@@ -24,6 +24,7 @@ builder.Services.AddAutoMapper(config =>
 });
 
 builder.Services.Configure<CarDealershipManager.Models.Settings.SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
+builder.Services.Configure<CarDealershipManager.Models.Settings.CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 
 // Rejestracja serwisów
 builder.Services.AddScoped<ICarSearchService, CarSearchService>();
@@ -31,6 +32,7 @@ builder.Services.AddScoped<IFilterService, FilterService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ICarAdminService, CarAdminService>();
+builder.Services.AddScoped<IPhotoService, PhotoService>();
 
 // Serwer przechowuje dane szyfrujące wyłącznie w RAM - odcięcie zasilania to automatyczne wylogowanie wszystkich
 builder.Services.AddDataProtection()

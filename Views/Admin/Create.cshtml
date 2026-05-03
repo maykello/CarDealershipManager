@@ -9,7 +9,7 @@
         <div class="col-md-12">
             <h1 class="mb-4">Dodaj Nowy Pojazd</h1>
 
-            <form asp-action="Create" method="post" class="needs-validation" novalidate>
+            <form asp-action="Create" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                 @Html.AntiForgeryToken()
 
                 <!-- Wyświetlanie błędów walidacji -->
@@ -211,6 +211,23 @@
                     </div>
                 </div>
 
+                <!-- Zdjęcia -->
+                <div class="card mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">Zdjęcia pojazdu</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label asp-for="Photos" class="form-label">
+                                <strong>Wybierz zdjęcia</strong>
+                            </label>
+                            <input asp-for="Photos" type="file" multiple class="form-control" accept="image/*" id="photoInput" />
+                            <small class="text-muted">Możesz zaznaczyć wiele plików na raz.</small>
+                        </div>
+                        <div id="imagePreviews" class="d-flex flex-wrap gap-2 mt-3"></div>
+                    </div>
+                </div>
+
                 <!-- Opis -->
                 <div class="card mb-4">
                     <div class="card-header bg-info text-white">
@@ -289,6 +306,61 @@
                         });
                 }
             });
+
+            // Podgląd plików
+            const photoInput = document.getElementById('photoInput');
+            const imagePreviews = document.getElementById('imagePreviews');
+            let accumulatedFiles = [];
+
+            function updateInputAndPreviews() {
+                const dt = new DataTransfer();
+                accumulatedFiles.forEach(f => dt.items.add(f));
+                photoInput.files = dt.files;
+                
+                imagePreviews.innerHTML = '';
+                accumulatedFiles.forEach((file, index) => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const wrapper = document.createElement('div');
+                            wrapper.className = 'position-relative';
+                            
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.classList.add('rounded', 'border');
+                            img.style.width = '120px';
+                            img.style.height = '120px';
+                            img.style.objectFit = 'cover';
+                            
+                            const removeBtn = document.createElement('button');
+                            removeBtn.innerHTML = '<i class="bi bi-x"></i>';
+                            removeBtn.className = 'btn btn-sm btn-danger position-absolute top-0 end-0 p-0 rounded-circle';
+                            removeBtn.style.width = '24px';
+                            removeBtn.style.height = '24px';
+                            removeBtn.title = 'Usuń to dodane zdjęcie z listy przed wgraniem';
+                            removeBtn.onclick = function(ev) {
+                                ev.preventDefault();
+                                accumulatedFiles.splice(index, 1);
+                                updateInputAndPreviews();
+                            };
+                            
+                            wrapper.appendChild(img);
+                            wrapper.appendChild(removeBtn);
+                            imagePreviews.appendChild(wrapper);
+                        }
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            if(photoInput) {
+                photoInput.addEventListener('change', function(e) {
+                    if (e.target.files.length > 0) {
+                        Array.from(e.target.files).forEach(f => accumulatedFiles.push(f));
+                        updateInputAndPreviews();
+                    }
+                });
+            }
         });
 
         // Bootstrap form validation

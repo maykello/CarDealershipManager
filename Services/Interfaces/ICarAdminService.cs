@@ -6,9 +6,11 @@ namespace CarDealershipManager.Services.Interfaces
     public interface ICarAdminService
     {
         Task<CarDto?> GetCarByIdAsync(int id);
-        Task<int> CreateCarAsync(CarDto carDto);
-        Task UpdateCarAsync(int id, CarDto carDto);
+        Task<int> CreateCarAsync(CarDto carDto, List<IFormFile>? photos = null);
+        Task UpdateCarAsync(int id, CarDto carDto, List<IFormFile>? photos = null, string? mainPhotoFilename = null);
         Task DeleteCarAsync(int id);
+        Task<bool> DeletePhotoByIdAsync(int photoId);
+        Task<bool> SetMainPhotoAsync(int carId, int photoId);
         Task<bool> CarExistsAsync(int id);
         Task<List<SelectItemDto>> GetMakesAsync();
         Task<List<SelectItemDto>> GetModelsAsync();

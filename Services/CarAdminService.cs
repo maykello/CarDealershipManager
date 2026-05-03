@@ -11,11 +11,13 @@ namespace CarDealershipManager.Services
     {
         private readonly CarDealershipDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IPhotoService _photoService;
 
-        public CarAdminService(CarDealershipDbContext context, IMapper mapper)
+        public CarAdminService(CarDealershipDbContext context, IMapper mapper, IPhotoService photoService)
         {
             _context = context;
             _mapper = mapper;
+            _photoService = photoService;
         }
         public async Task<CarDto?> GetCarByIdAsync(int id)
         {
@@ -25,17 +27,33 @@ namespace CarDealershipManager.Services
             return car != null ? _mapper.Map<CarDto>(car) : null;
         }
 
-        public async Task<int> CreateCarAsync(CarDto carDto)
+        public async Task<int> CreateCarAsync(CarDto carDto, List<IFormFile>? photos = null)
         {
             var car = _mapper.Map<CarModel>(carDto);
             await SetNavigationPropertiesAsync(carDto, car);
+
+            if (photos != null && photos.Count > 0)
+            {
+                car.Gallery ??= new List<GalleryModel>();
+                var isFirst = !car.Gallery.Any(g => g.IsMain);
+                foreach (var photo in photos)
+                {
+                    var galleryModel = await _photoService.AddPhotoAsync(photo);
+                    if (isFirst)
+                    {
+                        galleryModel.IsMain = true;
+                        isFirst = false;
+                    }
+                    car.Gallery.Add(galleryModel);
+                }
+            }
 
             _context.Cars.Add(car);
             await _context.SaveChangesAsync();
 
             return car.CarId;
         }
-        public async Task UpdateCarAsync(int id, CarDto carDto)
+        public async Task UpdateCarAsync(int id, CarDto carDto, List<IFormFile>? photos = null, string? mainPhotoFilename = null)
         {
             if (id != carDto.CarId)
                 throw new InvalidOperationException("Car ID mismatch.");
@@ -50,19 +68,95 @@ namespace CarDealershipManager.Services
 
             await SetNavigationPropertiesAsync(carDto, car);
 
+            if (photos != null && photos.Count > 0)
+            {
+                car.Gallery ??= new List<GalleryModel>();
+                var isFirst = !car.Gallery.Any(g => g.IsMain);
+                foreach (var photo in photos)
+                {
+                    var galleryModel = await _photoService.AddPhotoAsync(photo);
+                    
+                    bool shouldBeMain = false;
+                    if (!string.IsNullOrEmpty(mainPhotoFilename) && photo.FileName == mainPhotoFilename)
+                    {
+                        shouldBeMain = true;
+                    }
+                    else if (isFirst && string.IsNullOrEmpty(mainPhotoFilename))
+                    {
+                        shouldBeMain = true;
+                        isFirst = false;
+                    }
+
+                    if (shouldBeMain)
+                    {
+                        foreach (var existingPhoto in car.Gallery)
+                        {
+                            existingPhoto.IsMain = false;
+                        }
+                        galleryModel.IsMain = true;
+                    }
+
+                    car.Gallery.Add(galleryModel);
+                }
+            }
+
             _context.Cars.Update(car);
             await _context.SaveChangesAsync();
         }
         public async Task DeleteCarAsync(int id)
         {
-            var car = await _context.Cars.FirstOrDefaultAsync(c => c.CarId == id);
+            var car = await _context.Cars
+                .Include(c => c.Gallery)
+                .FirstOrDefaultAsync(c => c.CarId == id);
 
             if (car == null)
                 throw new KeyNotFoundException($"Car with ID {id} not found.");
 
+            if (car.Gallery != null && car.Gallery.Any())
+            {
+                foreach (var photo in car.Gallery.ToList())
+                {
+                    if (!string.IsNullOrEmpty(photo.PublicId))
+                    {
+                        await _photoService.DeletePhotoAsync(photo.PublicId);
+                    }
+                    _context.Galleries.Remove(photo);
+                }
+            }
+
             _context.Cars.Remove(car);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<bool> DeletePhotoByIdAsync(int photoId)
+        {
+            var photo = await _context.Galleries.FirstOrDefaultAsync(p => p.PhotoId == photoId);
+            if (photo == null) return false;
+
+            if (!string.IsNullOrEmpty(photo.PublicId))
+            {
+                await _photoService.DeletePhotoAsync(photo.PublicId);
+            }
+
+            _context.Galleries.Remove(photo);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> SetMainPhotoAsync(int carId, int photoId)
+        {
+            var photos = await _context.Galleries.Where(p => p.CarId == carId).ToListAsync();
+            if (!photos.Any(p => p.PhotoId == photoId)) return false;
+
+            foreach (var photo in photos)
+            {
+                photo.IsMain = photo.PhotoId == photoId;
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<bool> CarExistsAsync(int id)
         {
             return await _context.Cars.AnyAsync(e => e.CarId == id);
@@ -160,6 +254,7 @@ namespace CarDealershipManager.Services
                 .Include(c => c.BodyType)
                 .Include(c => c.Color)
                 .Include(c => c.EuroClass)
+                .Include(c => c.Gallery)
                 .Include(c => c.CarStatus);
         }
         private async Task SetNavigationPropertiesAsync(CarDto carDto, CarModel car)
