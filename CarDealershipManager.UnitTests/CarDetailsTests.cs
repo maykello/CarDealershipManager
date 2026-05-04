@@ -12,32 +12,99 @@ namespace CarDealershipManager.UnitTests
 {
     public class HomeControllerDetailsTests
     {
-        [Fact]
-        public async Task Details_DlaIstniejacegoCar_ZwracaViewZDanymi()
-        {
-            // Arrange
-            var mockCarSearchService = new Mock<ICarSearchService>();
-            var mockFilterService = new Mock<IFilterService>();
+        #region Helper Methods
 
-            var carDto = new CarDto
+        // Tworzy kontroler HomeController z mockami serwisów
+
+        private HomeController GetHomeController(
+            Mock<ICarSearchService> carSearchServiceMock = null,
+            Mock<IFilterService> filterServiceMock = null)
+        {
+            carSearchServiceMock ??= new Mock<ICarSearchService>();
+            filterServiceMock ??= new Mock<IFilterService>();
+
+            return new HomeController(carSearchServiceMock.Object, filterServiceMock.Object);
+        }
+
+        // Tworzy testowy CarDto z domyślnymi wartościami
+        private CarDto CreateTestCarDto(
+            int carId = 1,
+            int productionYear = 2020,
+            int horsePower = 200,
+            int mileage = 50000,
+            string vin = "TESTVIN123456789",
+            decimal price = 45000m)
+        {
+            return new CarDto
             {
-                CarId = 1,
-                ProductionYear = 2020,
-                HorsePower = 200,
-                Mileage = 50000,
-                Vin = "TESTVIN123456789",
-                Price = 45000m,
+                CarId = carId,
+                ProductionYear = productionYear,
+                HorsePower = horsePower,
+                Mileage = mileage,
+                Vin = vin,
+                Price = price,
                 Description = "Testowy samochód",
                 FuelType = new FuelTypeDto { FuelTypeId = 1, Name = "Benzyna" },
                 CarStatus = new CarStatusDto { CarStatusId = 1, Name = "Dostępny" },
                 Gallery = new List<GalleryDto>()
             };
+        }
 
+        // Tworzy testowy CarDto z pełnymi danymi i galerią
+        private CarDto CreateTestCarDtoWithDetails(
+            int carId = 5,
+            int productionYear = 2022,
+            int horsePower = 250,
+            int mileage = 15000,
+            string vin = "BMW123XYZ789",
+            decimal price = 80000m)
+        {
+            return new CarDto
+            {
+                CarId = carId,
+                ProductionYear = productionYear,
+                HorsePower = horsePower,
+                Mileage = mileage,
+                Vin = vin,
+                Price = price,
+                FuelType = new FuelTypeDto { FuelTypeId = 2, Name = "Diesel" },
+                TransmissionType = new TransmissionTypeDto { TransmissionTypeId = 1, Name = "Automatyczna" },
+                BodyType = new BodyTypeDto { BodyTypeId = 1, Name = "Sedan" },
+                Color = new ColorDto { ColorId = 1, Name = "Czarny" },
+                CarStatus = new CarStatusDto { CarStatusId = 1, Name = "Dostępny" }
+            };
+        }
+
+        // Tworzy testową galerię zdjęć
+        private List<GalleryDto> CreateTestGallery(int photoCount = 3)
+        {
+            var gallery = new List<GalleryDto>();
+            for (int i = 1; i <= photoCount; i++)
+            {
+                gallery.Add(new GalleryDto { PhotoId = i, FilePath = $"/images/car-{i}.jpg" });
+            }
+            return gallery;
+        }
+
+        #endregion
+
+        #region Details GET Tests
+
+        // Test sprawdza:
+        // - Details dla istniejącego pojazdu zwraca View
+        // - Model zawiera prawidłowe dane (CarId, Vin, Price)
+        // - Serwis GetCarByIdAsync jest wywoływany z prawidłowym ID
+        [Fact]
+        public async Task Details_DlaIstniejacegoCar_ZwracaViewZDanymi()
+        {
+            // Arrange
+            var carDto = CreateTestCarDto(carId: 1);
+            var mockCarSearchService = new Mock<ICarSearchService>();
             mockCarSearchService
                 .Setup(s => s.GetCarByIdAsync(1))
                 .ReturnsAsync(carDto);
 
-            var controller = new HomeController(mockCarSearchService.Object, mockFilterService.Object);
+            var controller = GetHomeController(carSearchServiceMock: mockCarSearchService);
 
             // Act
             var result = await controller.Details(1);
@@ -51,18 +118,19 @@ namespace CarDealershipManager.UnitTests
             mockCarSearchService.Verify(s => s.GetCarByIdAsync(1), Times.Once);
         }
 
+        // Test sprawdza:
+        // - Details dla nieistniejącego pojazdu zwraca NotFound (404)
+        // - Serwis zwraca null dla GetCarByIdAsync
         [Fact]
         public async Task Details_DlaNieistniejacegoCar_ZwracaNotFound()
         {
             // Arrange
             var mockCarSearchService = new Mock<ICarSearchService>();
-            var mockFilterService = new Mock<IFilterService>();
-
             mockCarSearchService
                 .Setup(s => s.GetCarByIdAsync(999))
                 .ReturnsAsync((CarDto)null);
 
-            var controller = new HomeController(mockCarSearchService.Object, mockFilterService.Object);
+            var controller = GetHomeController(carSearchServiceMock: mockCarSearchService);
 
             // Act
             var result = await controller.Details(999);
@@ -72,33 +140,21 @@ namespace CarDealershipManager.UnitTests
             mockCarSearchService.Verify(s => s.GetCarByIdAsync(999), Times.Once);
         }
 
+        // Test sprawdza:
+        // - Details ładuje wszystkie dane pojazdu z serwisu
+        // - Wszystkie pola są dostępne
+        // - Powiązane dane są załadowane
         [Fact]
         public async Task Details_LadujeCarDtoZPodanymId()
         {
             // Arrange
+            var carDto = CreateTestCarDtoWithDetails(carId: 5);
             var mockCarSearchService = new Mock<ICarSearchService>();
-            var mockFilterService = new Mock<IFilterService>();
-
-            var carDto = new CarDto
-            {
-                CarId = 5,
-                ProductionYear = 2022,
-                HorsePower = 250,
-                Mileage = 15000,
-                Vin = "BMW123XYZ789",
-                Price = 80000m,
-                FuelType = new FuelTypeDto { FuelTypeId = 2, Name = "Diesel" },
-                TransmissionType = new TransmissionTypeDto { TransmissionTypeId = 1, Name = "Automatyczna" },
-                BodyType = new BodyTypeDto { BodyTypeId = 1, Name = "Sedan" },
-                Color = new ColorDto { ColorId = 1, Name = "Czarny" },
-                CarStatus = new CarStatusDto { CarStatusId = 1, Name = "Dostępny" }
-            };
-
             mockCarSearchService
                 .Setup(s => s.GetCarByIdAsync(5))
                 .ReturnsAsync(carDto);
 
-            var controller = new HomeController(mockCarSearchService.Object, mockFilterService.Object);
+            var controller = GetHomeController(carSearchServiceMock: mockCarSearchService);
 
             // Act
             var result = await controller.Details(5);
@@ -120,36 +176,23 @@ namespace CarDealershipManager.UnitTests
             Assert.NotNull(model.CarStatus);
         }
 
+        // Test sprawdza:
+        // - Details ładuje galerię zdjęć pojazdu
+        // - Gallery nie jest pusta i zawiera prawidłową liczbę elementów
+        // - Każde zdjęcie ma FilePath
         [Fact]
         public async Task Details_LadujeGalerieZdj()
         {
             // Arrange
+            var carDto = CreateTestCarDto(carId: 3, vin: "AUDI456XYZ789", price: 55000m);
+            carDto.Gallery = CreateTestGallery(photoCount: 3);
+
             var mockCarSearchService = new Mock<ICarSearchService>();
-            var mockFilterService = new Mock<IFilterService>();
-
-            var carDto = new CarDto
-            {
-                CarId = 3,
-                ProductionYear = 2021,
-                HorsePower = 180,
-                Mileage = 30000,
-                Vin = "AUDI456XYZ789",
-                Price = 55000m,
-                Gallery = new List<GalleryDto>
-                {
-                    new GalleryDto { PhotoId = 1, FilePath = "/images/car-1.jpg" },
-                    new GalleryDto { PhotoId = 2, FilePath = "/images/car-2.jpg" },
-                    new GalleryDto { PhotoId = 3, FilePath = "/images/car-3.jpg" }
-                },
-                FuelType = new FuelTypeDto { FuelTypeId = 1, Name = "Benzyna" },
-                CarStatus = new CarStatusDto { CarStatusId = 1, Name = "Dostępny" }
-            };
-
             mockCarSearchService
                 .Setup(s => s.GetCarByIdAsync(3))
                 .ReturnsAsync(carDto);
 
-            var controller = new HomeController(mockCarSearchService.Object, mockFilterService.Object);
+            var controller = GetHomeController(carSearchServiceMock: mockCarSearchService);
 
             // Act
             var result = await controller.Details(3);
@@ -162,27 +205,6 @@ namespace CarDealershipManager.UnitTests
             Assert.Equal(3, model.Gallery.Count);
         }
 
-        [Fact]
-        public async Task Details_CallsCarSearchServiceWithCorrectId()
-        {
-            // Arrange
-            var mockCarSearchService = new Mock<ICarSearchService>();
-            var mockFilterService = new Mock<IFilterService>();
-
-            var testId = 42;
-            var carDto = new CarDto { CarId = testId, Vin = "TEST", Price = 10000m };
-
-            mockCarSearchService
-                .Setup(s => s.GetCarByIdAsync(testId))
-                .ReturnsAsync(carDto);
-
-            var controller = new HomeController(mockCarSearchService.Object, mockFilterService.Object);
-
-            // Act
-            await controller.Details(testId);
-
-            // Assert - Verify the service was called with correct ID
-            mockCarSearchService.Verify(s => s.GetCarByIdAsync(testId), Times.Once);
-        }
+        #endregion
     }
 }

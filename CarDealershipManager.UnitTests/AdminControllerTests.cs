@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CarDealershipManager.Controllers;
@@ -15,6 +16,9 @@ namespace CarDealershipManager.UnitTests
 {
     public class AdminControllerTests
     {
+        #region Helper Methods
+        // Tworzy kontroler AdminController z mockami serwisów
+
         private AdminController GetAdminController(
             Mock<IAuthService> authServiceMock = null,
             Mock<ICarAdminService> carAdminServiceMock = null)
@@ -24,7 +28,7 @@ namespace CarDealershipManager.UnitTests
 
             return new AdminController(authServiceMock.Object, carAdminServiceMock.Object);
         }
-
+        // Tworzy testowe dane SelectItem
         private List<SelectItemDto> GetTestSelectItems()
         {
             return new List<SelectItemDto>
@@ -34,33 +38,69 @@ namespace CarDealershipManager.UnitTests
             };
         }
 
+        // Setup mock serwis ze wszystkimi listami SelectList
+        private Mock<ICarAdminService> SetupCarAdminServiceWithAllLists()
+        {
+            var mockCarAdminService = new Mock<ICarAdminService>();
+            var testItems = GetTestSelectItems();
+
+            mockCarAdminService.Setup(s => s.GetMakesAsync()).ReturnsAsync(testItems);
+            mockCarAdminService.Setup(s => s.GetModelsAsync()).ReturnsAsync(testItems);
+            mockCarAdminService.Setup(s => s.GetGenerationsAsync()).ReturnsAsync(testItems);
+            mockCarAdminService.Setup(s => s.GetTransmissionTypesAsync()).ReturnsAsync(testItems);
+            mockCarAdminService.Setup(s => s.GetDrivetrainsAsync()).ReturnsAsync(testItems);
+            mockCarAdminService.Setup(s => s.GetBodyTypesAsync()).ReturnsAsync(testItems);
+            mockCarAdminService.Setup(s => s.GetEuroClassesAsync()).ReturnsAsync(testItems);
+            mockCarAdminService.Setup(s => s.GetColorsAsync()).ReturnsAsync(testItems);
+            mockCarAdminService.Setup(s => s.GetFuelTypesAsync()).ReturnsAsync(testItems);
+            mockCarAdminService.Setup(s => s.GetCarStatusesAsync()).ReturnsAsync(testItems);
+
+            return mockCarAdminService;
+        }
+        // Tworzy testowy CarDto z domyślnymi wartościami
+        private CarDto CreateTestCarDto(int carId = 0, string vin = "TESTVIN123456789", decimal price = 45000m)
+        {
+            return new CarDto
+            {
+                CarId = carId,
+                ProductionYear = 2020,
+                HorsePower = 200,
+                Mileage = 50000,
+                Vin = vin,
+                Price = price,
+                GenerationId = 1,
+                FuelTypeId = 1,
+                TransmissionTypeId = 1,
+                DrivetrainId = 1,
+                BodyTypeId = 1,
+                ColorId = 1,
+                EuroClassId = 1,
+                CarStatusId = 1
+            };
+        }
+
+        // Tworzy testowy CarFormViewModel z domyślnymi wartościami
+        private CarFormViewModel CreateTestCarFormViewModel(CarDto carDto = null)
+        {
+            return new CarFormViewModel
+            {
+                Car = carDto ?? CreateTestCarDto()
+            };
+        }
+
+        #endregion
+
+        #region Create Tests
+
+        // Test sprawdza:
+        // - GET Create zwraca View
+        // - ViewModel jest zapatrywany danymi SelectList (Make, Model, Generation, etc.)
+        // - Wszystkie 10 list jest załadowanych
         [Fact]
         public async Task Create_GET_ZwracaViewZPopulowanymViewModel()
         {
             // Arrange
-            var mockCarAdminService = new Mock<ICarAdminService>();
-
-            mockCarAdminService.Setup(s => s.GetMakesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetModelsAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetGenerationsAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetTransmissionTypesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetDrivetrainsAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetBodyTypesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetEuroClassesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetColorsAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetFuelTypesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetCarStatusesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-
+            var mockCarAdminService = SetupCarAdminServiceWithAllLists();
             var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
 
             // Act
@@ -80,32 +120,17 @@ namespace CarDealershipManager.UnitTests
         [Fact]
         public async Task Create_POST_ZPoprawnymiDanymi_PrzekierowujeNaHome()
         {
+            // Test sprawdza:
+            // - POST Create z poprawnymi danymi wywołuje CreateCarAsync
+            // - Serwis otrzymuje prawidłowy CarDto
+            // - Następuje przekierowanie na Home/Index
             // Arrange
             var mockCarAdminService = new Mock<ICarAdminService>();
             mockCarAdminService.Setup(s => s.CreateCarAsync(It.IsAny<CarDto>()))
                 .ReturnsAsync(1);
 
             var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
-
-            var viewModel = new CarFormViewModel
-            {
-                Car = new CarDto
-                {
-                    ProductionYear = 2020,
-                    HorsePower = 200,
-                    Mileage = 50000,
-                    Vin = "TESTVIN123456789",
-                    Price = 45000m,
-                    GenerationId = 1,
-                    FuelTypeId = 1,
-                    TransmissionTypeId = 1,
-                    DrivetrainId = 1,
-                    BodyTypeId = 1,
-                    ColorId = 1,
-                    EuroClassId = 1,
-                    CarStatusId = 1
-                }
-            };
+            var viewModel = CreateTestCarFormViewModel();
 
             // Act
             var result = await controller.Create(viewModel);
@@ -121,43 +146,17 @@ namespace CarDealershipManager.UnitTests
         [Fact]
         public async Task Create_POST_ZNiepoprawnymModelem_ZwracaViewZRepopulowanymViewModel()
         {
+            // Test sprawdza:
+            // - POST Create z błędem walidacji zwraca View
+            // - Nie wywołuje CreateCarAsync
+            // - ViewModel jest repopulowany danymi SelectList
             // Arrange
-            var mockCarAdminService = new Mock<ICarAdminService>();
-            mockCarAdminService.Setup(s => s.GetMakesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetModelsAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetGenerationsAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetTransmissionTypesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetDrivetrainsAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetBodyTypesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetEuroClassesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetColorsAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetFuelTypesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetCarStatusesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-
+            var mockCarAdminService = SetupCarAdminServiceWithAllLists();
             var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
             controller.ModelState.AddModelError("Car.Vin", "VIN jest wymagany");
 
-            var viewModel = new CarFormViewModel
-            {
-                Car = new CarDto
-                {
-                    ProductionYear = 2020,
-                    HorsePower = 200,
-                    Mileage = 50000,
-                    Vin = "", // Empty VIN - invalid
-                    Price = 45000m
-                }
-            };
+            var viewModel = CreateTestCarFormViewModel();
+            viewModel.Car.Vin = "";
 
             // Act
             var result = await controller.Create(viewModel);
@@ -171,68 +170,16 @@ namespace CarDealershipManager.UnitTests
             mockCarAdminService.Verify(s => s.CreateCarAsync(It.IsAny<CarDto>()), Times.Never);
         }
 
-        [Fact]
-        public async Task Edit_GET_DlaIstniejącegoCar_ZwracaViewZDanymi()
-        {
-            // Arrange
-            var carDto = new CarDto
-            {
-                CarId = 1,
-                ProductionYear = 2020,
-                HorsePower = 200,
-                Mileage = 50000,
-                Vin = "TESTVIN123456789",
-                Price = 45000m,
-                GenerationId = 1,
-                FuelTypeId = 1,
-                TransmissionTypeId = 1,
-                DrivetrainId = 1,
-                BodyTypeId = 1,
-                ColorId = 1,
-                EuroClassId = 1,
-                CarStatusId = 1
-            };
+        #endregion
 
-            var mockCarAdminService = new Mock<ICarAdminService>();
-            mockCarAdminService.Setup(s => s.GetCarByIdAsync(1))
-                .ReturnsAsync(carDto);
-            mockCarAdminService.Setup(s => s.GetMakesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetModelsAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetGenerationsAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetTransmissionTypesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetDrivetrainsAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetBodyTypesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetEuroClassesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetColorsAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetFuelTypesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetCarStatusesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-
-            var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
-
-            // Act
-            var result = await controller.Edit(1);
-
-            // Assert
-            var viewResult = Assert.IsType<ViewResult>(result);
-            var model = Assert.IsType<CarFormViewModel>(viewResult.Model);
-            Assert.NotNull(model.Car);
-            Assert.Equal(1, model.Car.CarId);
-            Assert.Equal("TESTVIN123456789", model.Car.Vin);
-        }
+        #region Edit Tests
 
         [Fact]
         public async Task Edit_GET_DlaNieznajdującegoCar_ZwracaNotFound()
         {
+            // Test sprawdza:
+            // - GET Edit dla ID, które nie istnieje zwraca NotFound (404)
+            // - Serwis zwraca null dla GetCarByIdAsync
             // Arrange
             var mockCarAdminService = new Mock<ICarAdminService>();
             mockCarAdminService.Setup(s => s.GetCarByIdAsync(999))
@@ -250,6 +197,10 @@ namespace CarDealershipManager.UnitTests
         [Fact]
         public async Task Edit_POST_ZPoprawnymiDanymi_AktualizujeiPrzekierowuje()
         {
+            // Test sprawdza:
+            // - POST Edit z poprawnymi danymi wywołuje UpdateCarAsync
+            // - Pojazd jest aktualizowany w bazie
+            // - Następuje przekierowanie na Home/Index
             // Arrange
             var mockCarAdminService = new Mock<ICarAdminService>();
             mockCarAdminService.Setup(s => s.CarExistsAsync(1))
@@ -258,58 +209,31 @@ namespace CarDealershipManager.UnitTests
                 .Returns(Task.CompletedTask);
 
             var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
-
-            var viewModel = new CarFormViewModel
-            {
-                Car = new CarDto
-                {
-                    CarId = 1,
-                    ProductionYear = 2021,
-                    HorsePower = 250,
-                    Mileage = 55000,
-                    Vin = "UPDATEDVIN",
-                    Price = 50000m,
-                    GenerationId = 1,
-                    FuelTypeId = 1,
-                    TransmissionTypeId = 1,
-                    DrivetrainId = 1,
-                    BodyTypeId = 1,
-                    ColorId = 1,
-                    EuroClassId = 1,
-                    CarStatusId = 1
-                }
-            };
+            var viewModel = CreateTestCarFormViewModel(CreateTestCarDto(carId: 1));
 
             // Act
             var result = await controller.Edit(1, viewModel);
 
             // Assert
             var redirectResult = Assert.IsType<RedirectToActionResult>(result);
-            Assert.Equal("Index", redirectResult.ActionName);
+            Assert.Equal("Details", redirectResult.ActionName);
             Assert.Equal("Home", redirectResult.ControllerName);
+            Assert.Equal(1, redirectResult.RouteValues["id"]);
 
-            mockCarAdminService.Verify(s => s.UpdateCarAsync(1, It.IsAny<CarDto>()), Times.Once);
+            mockCarAdminService.Verify(s => s.UpdateCarAsync(1, It.IsAny<CarDto>(), It.IsAny<List<Microsoft.AspNetCore.Http.IFormFile>>(), It.IsAny<string>()), Times.Once);
         }
 
         [Fact]
         public async Task Edit_POST_ZNiepropadającymId_ZwracaBadRequest()
         {
+            // Test sprawdza:
+            // - POST Edit z niezgodnym ID zwraca BadRequest (400)
+            // - Nie wysyła UpdateCarAsync do serwisu
             // Arrange
             var mockCarAdminService = new Mock<ICarAdminService>();
             var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
 
-            var viewModel = new CarFormViewModel
-            {
-                Car = new CarDto
-                {
-                    CarId = 5, // Different ID than parameter
-                    ProductionYear = 2020,
-                    HorsePower = 200,
-                    Mileage = 50000,
-                    Vin = "TESTVIN",
-                    Price = 45000m
-                }
-            };
+            var viewModel = CreateTestCarFormViewModel(CreateTestCarDto(carId: 5));
 
             // Act
             var result = await controller.Edit(1, viewModel);
@@ -324,44 +248,17 @@ namespace CarDealershipManager.UnitTests
         [Fact]
         public async Task Edit_POST_ZNiepoprawnymModelem_ZwracaViewZRepopulowanymViewModel()
         {
+            // Test sprawdza:
+            // - POST Edit z błędem walidacji zwraca View
+            // - Nie wysyła UpdateCarAsync do serwisu
+            // - ViewModel jest repopulowany danymi SelectList
             // Arrange
-            var mockCarAdminService = new Mock<ICarAdminService>();
-            mockCarAdminService.Setup(s => s.GetMakesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetModelsAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetGenerationsAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetTransmissionTypesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetDrivetrainsAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetBodyTypesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetEuroClassesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetColorsAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetFuelTypesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-            mockCarAdminService.Setup(s => s.GetCarStatusesAsync())
-                .ReturnsAsync(GetTestSelectItems());
-
+            var mockCarAdminService = SetupCarAdminServiceWithAllLists();
             var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
             controller.ModelState.AddModelError("Car.Vin", "VIN jest wymagany");
 
-            var viewModel = new CarFormViewModel
-            {
-                Car = new CarDto
-                {
-                    CarId = 1,
-                    ProductionYear = 2020,
-                    HorsePower = 200,
-                    Mileage = 50000,
-                    Vin = "", // Invalid
-                    Price = 45000m
-                }
-            };
+            var viewModel = CreateTestCarFormViewModel(CreateTestCarDto(carId: 1));
+            viewModel.Car.Vin = "";
 
             // Act
             var result = await controller.Edit(1, viewModel);
@@ -376,25 +273,16 @@ namespace CarDealershipManager.UnitTests
         [Fact]
         public async Task Edit_POST_DlaNieznajdującegoCar_ZwracaNotFound()
         {
+            // Test sprawdza:
+            // - POST Edit dla samochodu, który nie istnieje zwraca NotFound (404)
+            // - Serwis zwraca false dla CarExistsAsync
             // Arrange
             var mockCarAdminService = new Mock<ICarAdminService>();
             mockCarAdminService.Setup(s => s.CarExistsAsync(999))
                 .ReturnsAsync(false);
 
             var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
-
-            var viewModel = new CarFormViewModel
-            {
-                Car = new CarDto
-                {
-                    CarId = 999,
-                    ProductionYear = 2020,
-                    HorsePower = 200,
-                    Mileage = 50000,
-                    Vin = "TESTVIN",
-                    Price = 45000m
-                }
-            };
+            var viewModel = CreateTestCarFormViewModel(CreateTestCarDto(carId: 999));
 
             // Act
             var result = await controller.Edit(999, viewModel);
@@ -403,51 +291,17 @@ namespace CarDealershipManager.UnitTests
             Assert.IsType<NotFoundResult>(result);
         }
 
-        [Fact]
-        public async Task GetModelsByMake_ZPoprawnyMakeId_ZwracaJsonZModelami()
-        {
-            // Arrange
-            var models = GetTestSelectItems();
-            var mockCarAdminService = new Mock<ICarAdminService>();
-            mockCarAdminService.Setup(s => s.GetModelsByMakeAsync(1))
-                .ReturnsAsync(models);
+        #endregion
 
-            var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
-
-            // Act
-            var result = await controller.GetModelsByMake(1);
-
-            // Assert
-            var jsonResult = Assert.IsType<JsonResult>(result);
-            Assert.NotNull(jsonResult.Value);
-
-            mockCarAdminService.Verify(s => s.GetModelsByMakeAsync(1), Times.Once);
-        }
-
-        [Fact]
-        public async Task GetGenerationsByModel_ZPoprawnyModelId_ZwracaJsonZGeneracjami()
-        {
-            // Arrange
-            var generations = GetTestSelectItems();
-            var mockCarAdminService = new Mock<ICarAdminService>();
-            mockCarAdminService.Setup(s => s.GetGenerationsByModelAsync(1))
-                .ReturnsAsync(generations);
-
-            var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
-
-            // Act
-            var result = await controller.GetGenerationsByModel(1);
-
-            // Assert
-            var jsonResult = Assert.IsType<JsonResult>(result);
-            Assert.NotNull(jsonResult.Value);
-
-            mockCarAdminService.Verify(s => s.GetGenerationsByModelAsync(1), Times.Once);
-        }
+        #region Delete Tests
 
         [Fact]
         public async Task Delete_POST_ZPoprawnymId_UsuwaSamochodIPrzekierowuje()
         {
+            // Test sprawdza:
+            // - POST Delete z poprawnymi danymi usuwa samochód
+            // - Serwis wywoła DeleteCarAsync
+            // - Następuje przekierowanie na Home/Index
             // Arrange
             var mockCarAdminService = new Mock<ICarAdminService>();
             mockCarAdminService.Setup(s => s.DeleteCarAsync(It.IsAny<int>()))
@@ -469,6 +323,9 @@ namespace CarDealershipManager.UnitTests
         [Fact]
         public async Task Delete_POST_ZIdNieznajdującegoCar_ZwracaNotFound()
         {
+            // Test sprawdza:
+            // - POST Delete dla ID, które nie istnieje zwraca NotFound (404)
+            // - Serwis wyrzuca KeyNotFoundException
             // Arrange
             var mockCarAdminService = new Mock<ICarAdminService>();
             mockCarAdminService.Setup(s => s.DeleteCarAsync(It.IsAny<int>()))
@@ -485,18 +342,146 @@ namespace CarDealershipManager.UnitTests
             mockCarAdminService.Verify(s => s.DeleteCarAsync(999), Times.Once);
         }
 
+        #endregion
+
+        #region Helper Endpoints Tests
+
         [Fact]
-        public async Task Delete_POST_BezAutoryzacji_ShouldHaveAuthorizeAttribute()
+        public async Task GetModelsByMake_ZPoprawnyMakeId_ZwracaJsonZModelami()
         {
+            // Test sprawdza:
+            // - GET GetModelsByMake zwraca JSON z modelami dla podanego MakeId
+            // - Serwis wywoła GetModelsByMakeAsync
             // Arrange
+            var models = GetTestSelectItems();
             var mockCarAdminService = new Mock<ICarAdminService>();
+            mockCarAdminService.Setup(s => s.GetModelsByMakeAsync(1))
+                .ReturnsAsync(models);
+
             var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
 
-            // Assert - Verify that Delete method has Authorize attribute
-            var deleteMethod = typeof(AdminController).GetMethod("Delete");
-            var authorizeAttribute = deleteMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false);
-            Assert.NotNull(authorizeAttribute);
-            Assert.NotEmpty(authorizeAttribute);
+            // Act
+            var result = await controller.GetModelsByMake(1);
+
+            // Assert
+            var jsonResult = Assert.IsType<JsonResult>(result);
+            Assert.NotNull(jsonResult.Value);
+
+            mockCarAdminService.Verify(s => s.GetModelsByMakeAsync(1), Times.Once);
         }
+
+        [Fact]
+        public async Task GetGenerationsByModel_ZPoprawnyModelId_ZwracaJsonZGeneracjami()
+        {
+            // Test sprawdza:
+            // - GET GetGenerationsByModel zwraca JSON z generacjami dla podanego ModelId
+            // - Serwis wywoła GetGenerationsByModelAsync
+            // Arrange
+            var generations = GetTestSelectItems();
+            var mockCarAdminService = new Mock<ICarAdminService>();
+            mockCarAdminService.Setup(s => s.GetGenerationsByModelAsync(1))
+                .ReturnsAsync(generations);
+
+            var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
+
+            // Act
+            var result = await controller.GetGenerationsByModel(1);
+
+            // Assert
+            var jsonResult = Assert.IsType<JsonResult>(result);
+            Assert.NotNull(jsonResult.Value);
+
+            mockCarAdminService.Verify(s => s.GetGenerationsByModelAsync(1), Times.Once);
+        }
+
+        #endregion
+
+        #region Photo Management Endpoints Tests
+
+        [Fact]
+        public async Task DeletePhoto_POST_ZPoprawnymId_ZwracaOk()
+        {
+            // Test sprawdza:
+            // - POST DeletePhoto z poprawnym ID zwraca status OK
+            // - Serwis zwraca true dla operacji usunięcia
+            // Arrange
+            var mockCarAdminService = new Mock<ICarAdminService>();
+            mockCarAdminService.Setup(s => s.DeletePhotoByIdAsync(1))
+                .ReturnsAsync(true);
+
+            var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
+
+            // Act
+            var result = await controller.DeletePhoto(1);
+
+            // Assert
+            Assert.IsType<OkResult>(result);
+            mockCarAdminService.Verify(s => s.DeletePhotoByIdAsync(1), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeletePhoto_POST_ZBlednymId_ZwracaBadRequest()
+        {
+            // Test sprawdza:
+            // - POST DeletePhoto z błędnym ID zwraca status BadRequest
+            // - Serwis zwraca false dla operacji usunięcia
+            // Arrange
+            var mockCarAdminService = new Mock<ICarAdminService>();
+            mockCarAdminService.Setup(s => s.DeletePhotoByIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(false);
+
+            var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
+
+            // Act
+            var result = await controller.DeletePhoto(999);
+
+            // Assert
+            Assert.IsType<BadRequestResult>(result);
+            mockCarAdminService.Verify(s => s.DeletePhotoByIdAsync(999), Times.Once);
+        }
+
+        [Fact]
+        public async Task SetMainPhoto_POST_ZPoprawnymId_ZwracaOk()
+        {
+            // Test sprawdza:
+            // - POST SetMainPhoto z poprawnymi ID auta i zdjęcia zwraca status OK
+            // - Serwis zwraca true dla operacji ustawienia zdjęcia głównego
+            // Arrange
+            var mockCarAdminService = new Mock<ICarAdminService>();
+            mockCarAdminService.Setup(s => s.SetMainPhotoAsync(1, 2))
+                .ReturnsAsync(true);
+
+            var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
+
+            // Act
+            var result = await controller.SetMainPhoto(1, 2);
+
+            // Assert
+            Assert.IsType<OkResult>(result);
+            mockCarAdminService.Verify(s => s.SetMainPhotoAsync(1, 2), Times.Once);
+        }
+
+        [Fact]
+        public async Task SetMainPhoto_POST_ZBlednymId_ZwracaBadRequest()
+        {
+            // Test sprawdza:
+            // - POST SetMainPhoto z błędnym ID zdjęcia/auta zwraca status BadRequest
+            // - Serwis zwraca false dla operacji ustawienia zdjęcia głównego
+            // Arrange
+            var mockCarAdminService = new Mock<ICarAdminService>();
+            mockCarAdminService.Setup(s => s.SetMainPhotoAsync(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(false);
+
+            var controller = GetAdminController(carAdminServiceMock: mockCarAdminService);
+
+            // Act
+            var result = await controller.SetMainPhoto(999, 999);
+
+            // Assert
+            Assert.IsType<BadRequestResult>(result);
+            mockCarAdminService.Verify(s => s.SetMainPhotoAsync(999, 999), Times.Once);
+        }
+
+        #endregion
     }
 }

@@ -29,7 +29,22 @@
                         <span>- @Model.Generation.Name</span>
                     }
                 </h1>
-                <span class="badge bg-success fs-5">@Model.CarStatus?.Name</span>
+                <div class="d-flex align-items-center gap-3">
+                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    {
+                        <div>
+                            <a href="@Url.Action("Edit", "Admin", new { id = Model.CarId })" class="btn btn-sm btn-outline-warning">
+                                <i class="bi bi-pencil"></i> Edytuj
+                            </a>
+                            <form asp-action="Delete" asp-controller="Admin" asp-route-id="@Model.CarId" method="post" class="d-inline" onsubmit="return confirm('Czy na pewno chcesz usunąć ten pojazd?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i> Usuń
+                                </button>
+                            </form>
+                        </div>
+                    }
+                    <span class="badge bg-success fs-5">@Model.CarStatus?.Name</span>
+                </div>
             </div>
         </div>
     </div>
@@ -41,7 +56,7 @@
             {
                 <div id="carGallery" class="carousel slide" data-bs-ride="carousel">
                     <div class="carousel-inner">
-                        @foreach (var (image, index) in Model.Gallery.Select((x, i) => (x, i)))
+                        @foreach (var (image, index) in Model.Gallery.OrderByDescending(g => g.IsMain).Select((x, i) => (x, i)))
                         {
                             <div class="carousel-item @(index == 0 ? "active" : "")">
                                 <img src="@image.FilePath" class="d-block w-100 rounded" alt="@Model.Generation?.Model?.Make?.Name @Model.Generation?.Model?.Name" style="height: 500px; object-fit: cover;">

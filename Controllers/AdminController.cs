@@ -190,7 +190,7 @@ namespace CarDealershipManager.Controllers
                 return View(viewModel);
             }
 
-            await _carAdminService.CreateCarAsync(viewModel.Car);
+            await _carAdminService.CreateCarAsync(viewModel.Car, viewModel.Photos);
             return RedirectToAction("Index", "Home");
         }
 
@@ -235,8 +235,8 @@ namespace CarDealershipManager.Controllers
                     return NotFound();
                 }
 
-                await _carAdminService.UpdateCarAsync(id, viewModel.Car);
-                return RedirectToAction("Index", "Home");
+                await _carAdminService.UpdateCarAsync(id, viewModel.Car, viewModel.Photos, viewModel.MainPhotoFilename);
+                return RedirectToAction("Details", "Home", new { id = id });
             }
             catch (KeyNotFoundException)
             {
@@ -262,6 +262,26 @@ namespace CarDealershipManager.Controllers
             {
                 return NotFound();
             }
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeletePhoto(int photoId)
+        {
+            var success = await _carAdminService.DeletePhotoByIdAsync(photoId);
+            if (success) return Ok();
+            return BadRequest();
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetMainPhoto(int carId, int photoId)
+        {
+            var success = await _carAdminService.SetMainPhotoAsync(carId, photoId);
+            if (success) return Ok();
+            return BadRequest();
         }
 
         [HttpGet]

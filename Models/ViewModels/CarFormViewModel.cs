@@ -6,6 +6,8 @@ namespace CarDealershipManager.Models.ViewModels
     public class CarFormViewModel
     {
         public CarDto Car { get; set; } = new CarDto();
+        public List<IFormFile>? Photos { get; set; }
+        public string? MainPhotoFilename { get; set; }
 
         // Select Lists for Dropdowns
         public SelectList? Makes { get; set; }
