@@ -33,6 +33,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ICarAdminService, CarAdminService>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
+builder.Services.AddScoped<IContractService, ContractService>();
 
 // Serwer przechowuje dane szyfrujące wyłącznie w RAM - odcięcie zasilania to automatyczne wylogowanie wszystkich
 builder.Services.AddDataProtection()

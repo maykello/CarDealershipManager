@@ -21,12 +21,14 @@ namespace CarDealershipManager.UnitTests
 
         private AdminController GetAdminController(
             Mock<IAuthService> authServiceMock = null,
-            Mock<ICarAdminService> carAdminServiceMock = null)
+            Mock<ICarAdminService> carAdminServiceMock = null,
+            Mock<IContractService> contractServiceMock = null)
         {
             authServiceMock ??= new Mock<IAuthService>();
             carAdminServiceMock ??= new Mock<ICarAdminService>();
+            contractServiceMock ??= new Mock<IContractService>();
 
-            return new AdminController(authServiceMock.Object, carAdminServiceMock.Object);
+            return new AdminController(authServiceMock.Object, carAdminServiceMock.Object, contractServiceMock.Object);
         }
         // Tworzy testowe dane SelectItem
         private List<SelectItemDto> GetTestSelectItems()

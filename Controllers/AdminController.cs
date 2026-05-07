@@ -15,11 +15,13 @@ namespace CarDealershipManager.Controllers
     {
         private readonly IAuthService _authService;
         private readonly ICarAdminService _carAdminService;
+        private readonly IContractService _contractService;
 
-        public AdminController(IAuthService authService, ICarAdminService carAdminService)
+        public AdminController(IAuthService authService, ICarAdminService carAdminService, IContractService contractService)
         {
             _authService = authService;
             _carAdminService = carAdminService;
+            _contractService = contractService;
         }
 
         [HttpGet]
@@ -312,6 +314,21 @@ namespace CarDealershipManager.Controllers
             viewModel.Colors = new SelectList(await _carAdminService.GetColorsAsync(), "Id", "Name");
             viewModel.FuelTypes = new SelectList(await _carAdminService.GetFuelTypesAsync(), "Id", "Name");
             viewModel.CarStatuses = new SelectList(await _carAdminService.GetCarStatusesAsync(), "Id", "Name");
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GenerateContractPdf(int carId)
+        {
+            var car = await _carAdminService.GetCarByIdAsync(carId);
+            if (car == null)
+                return NotFound();
+
+            var pdfBytes = await _contractService.GenerateContractPdfAsync(car);
+            var contractNumber = await _contractService.GenerateContractNumberAsync();
+            var fileName = $"Umowa_{contractNumber}_{DateTime.Now:yyyyMMdd}.pdf";
+
+            return File(pdfBytes, "application/pdf", fileName);
         }
     }
 }
