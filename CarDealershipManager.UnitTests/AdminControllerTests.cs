@@ -16,19 +16,37 @@ namespace CarDealershipManager.UnitTests
 {
     public class AdminControllerTests
     {
+        private readonly Mock<IAuthService> _authServiceMock;
+        private readonly Mock<ICarAdminService> _carAdminServiceMock;
+        private readonly Mock<IContractService> _contractServiceMock;
+        private readonly Mock<ICustomerAdminService> _customerAdminServiceMock;
+        private readonly AdminController _controller;
+
+        public AdminControllerTests()
+        {
+            _authServiceMock = new Mock<IAuthService>();
+            _carAdminServiceMock = new Mock<ICarAdminService>();
+            _contractServiceMock = new Mock<IContractService>();
+            _customerAdminServiceMock = new Mock<ICustomerAdminService>();
+
+            _controller = new AdminController(_authServiceMock.Object, _carAdminServiceMock.Object, _contractServiceMock.Object, _customerAdminServiceMock.Object);
+        }
+
         #region Helper Methods
         // Tworzy kontroler AdminController z mockami serwisów
 
         private AdminController GetAdminController(
             Mock<IAuthService> authServiceMock = null,
             Mock<ICarAdminService> carAdminServiceMock = null,
-            Mock<IContractService> contractServiceMock = null)
+            Mock<IContractService> contractServiceMock = null,
+            Mock<ICustomerAdminService> customerAdminServiceMock = null)
         {
             authServiceMock ??= new Mock<IAuthService>();
             carAdminServiceMock ??= new Mock<ICarAdminService>();
             contractServiceMock ??= new Mock<IContractService>();
+            customerAdminServiceMock ??= new Mock<ICustomerAdminService>();
 
-            return new AdminController(authServiceMock.Object, carAdminServiceMock.Object, contractServiceMock.Object);
+            return new AdminController(authServiceMock.Object, carAdminServiceMock.Object, contractServiceMock.Object, customerAdminServiceMock.Object);
         }
         // Tworzy testowe dane SelectItem
         private List<SelectItemDto> GetTestSelectItems()

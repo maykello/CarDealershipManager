@@ -1,0 +1,223 @@
+@model CarDealershipManager.Models.ViewModels.ContractGenerationViewModel
+@using CarDealershipManager.Models.Entities
+@using CarDealershipManager.Models.ViewModels
+
+@{
+    ViewData["Title"] = "Generuj Fakturę VAT";
+}
+
+<div class="container mt-4">
+    <h2>Generuj Fakturę VAT: @Model.Car?.Generation?.Model?.Make?.Name @Model.Car?.Generation?.Model?.Name</h2>
+    <hr />
+
+    <form asp-action="GenerateInvoice" method="post">
+        <input type="hidden" asp-for="CarId" />
+
+        <div class="row">
+            <!-- LEWA KOLUMNA -->
+            <div class="col-md-6">
+                <h4>Dane Pojazdu</h4>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <p><strong>VIN:</strong> @Model.Car?.Vin</p>
+                        <p><strong>Rok produkcji:</strong> @Model.Car?.ProductionYear</p>
+                        <p><strong>Przebieg:</strong> @Model.Car?.Mileage km</p>
+                        <div class="form-group mt-3">
+                            <label asp-for="Price" class="control-label fw-bold">Cena brutto na fakturze (PLN)</label>
+                            <input asp-for="Price" class="form-control" type="number" step="0.01" />
+                            <span asp-validation-for="Price" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <h4>Sposób płatności</h4>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" asp-for="PaymentMethod" value="Gotowka" id="payGotowka" checked>
+                                <label class="form-check-label" for="payGotowka">Gotówka</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" asp-for="PaymentMethod" value="Przelew" id="payPrzelew">
+                                <label class="form-check-label" for="payPrzelew">Przelew bankowy</label>
+                            </div>
+                        </div>
+                        <div id="bankAccountSection" style="display:none;">
+                            <div class="form-group">
+                                <label asp-for="BankAccountNumber" class="control-label">Numer konta bankowego</label>
+                                <input asp-for="BankAccountNumber" class="form-control" placeholder="PL 00 0000 0000 0000 0000 0000 0000" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h4>Wybór Nabywcy</h4>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="CustomerSelection" id="existingCustomerRadio" value="existing" checked>
+                    <label class="form-check-label" for="existingCustomerRadio">
+                        Wybierz z bazy klientów
+                    </label>
+                </div>
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="radio" name="CustomerSelection" id="newCustomerRadio" value="new">
+                    <label class="form-check-label" for="newCustomerRadio">
+                        Dodaj nowego nabywcę na gorąco
+                    </label>
+                </div>
+                
+                <input type="hidden" asp-for="IsNewCustomer" id="IsNewCustomerHidden" value="false" />
+
+                <!-- Istniejący klient -->
+                <div id="existingCustomerSection" class="mb-4">
+                    <div class="form-group">
+                        <label asp-for="SelectedCustomerId" class="control-label">Wybierz nabywcę</label>
+                        <select asp-for="SelectedCustomerId" asp-items="Model.ExistingCustomers" class="form-control">
+                            <option value="">-- Wybierz nabywcę --</option>
+                        </select>
+                        <span asp-validation-for="SelectedCustomerId" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRAWA KOLUMNA -->
+            <div class="col-md-6">
+                <!-- Nowy klient formularz -->
+                <div id="newCustomerSection" style="display:none;" class="card">
+                    <div class="card-header bg-primary text-white">
+                        Wprowadź dane nowego nabywcy
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-2">
+                            <label asp-for="NewCustomer.Type" class="control-label">Typ Nabywcy</label>
+                            <select asp-for="NewCustomer.Type" class="form-control" asp-items="Html.GetEnumSelectList<CustomerType>()" id="typeSelector"></select>
+                        </div>
+
+                        <div id="individualFields">
+                            <div class="form-group mb-2">
+                                <label asp-for="NewCustomer.FirstName" class="control-label">Imię</label>
+                                <input asp-for="NewCustomer.FirstName" class="form-control" />
+                            </div>
+                            <div class="form-group mb-2">
+                                <label asp-for="NewCustomer.LastName" class="control-label">Nazwisko</label>
+                                <input asp-for="NewCustomer.LastName" class="form-control" />
+                            </div>
+                            <div class="form-group mb-2">
+                                <label asp-for="NewCustomer.NationalIdNumber" class="control-label">PESEL</label>
+                                <input asp-for="NewCustomer.NationalIdNumber" class="form-control" />
+                            </div>
+                            <div class="form-group mb-2">
+                                <label asp-for="NewCustomer.DocumentNumber" class="control-label">Nr Dowodu</label>
+                                <input asp-for="NewCustomer.DocumentNumber" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div id="companyFields" style="display:none;">
+                            <div class="form-group mb-2">
+                                <label asp-for="NewCustomer.CompanyName" class="control-label">Nazwa Firmy</label>
+                                <input asp-for="NewCustomer.CompanyName" class="form-control" />
+                            </div>
+                            <div class="form-group mb-2">
+                                <label asp-for="NewCustomer.TaxId" class="control-label">NIP</label>
+                                <input asp-for="NewCustomer.TaxId" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6 form-group mb-2">
+                                <label asp-for="NewCustomer.Country" class="control-label">Kraj</label>
+                                <input asp-for="NewCustomer.Country" class="form-control" value="Polska" />
+                            </div>
+                            <div class="col-6 form-group mb-2">
+                                <label asp-for="NewCustomer.City" class="control-label">Miasto</label>
+                                <input asp-for="NewCustomer.City" class="form-control" />
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-2">
+                            <label asp-for="NewCustomer.AddressLine1" class="control-label">Ulica i numer</label>
+                            <input asp-for="NewCustomer.AddressLine1" class="form-control" />
+                        </div>
+                        
+                        <div class="form-group mb-2">
+                            <label asp-for="NewCustomer.PostalCode" class="control-label">Kod Pocztowy</label>
+                            <input asp-for="NewCustomer.PostalCode" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-success btn-lg">Generuj Fakturę i Zapisz Transakcję</button>
+            <a asp-action="Details" asp-controller="Home" asp-route-id="@Model.CarId" class="btn btn-secondary btn-lg ms-2">Anuluj</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Przełączanie trybu wyboru klienta
+            var existingRadio = document.getElementById("existingCustomerRadio");
+            var newRadio = document.getElementById("newCustomerRadio");
+            var existingSection = document.getElementById("existingCustomerSection");
+            var newSection = document.getElementById("newCustomerSection");
+            var isNewHidden = document.getElementById("IsNewCustomerHidden");
+            
+            function toggleCustomerMode() {
+                if (newRadio.checked) {
+                    existingSection.style.display = "none";
+                    newSection.style.display = "block";
+                    isNewHidden.value = "true";
+                } else {
+                    existingSection.style.display = "block";
+                    newSection.style.display = "none";
+                    isNewHidden.value = "false";
+                }
+            }
+
+            existingRadio.addEventListener("change", toggleCustomerMode);
+            newRadio.addEventListener("change", toggleCustomerMode);
+            
+            // Przełączanie pól Osoba/Firma
+            var typeSelector = document.getElementById("typeSelector");
+            var individualFields = document.getElementById("individualFields");
+            var companyFields = document.getElementById("companyFields");
+
+            function toggleTypeFields() {
+                if (typeSelector.value == "1") { // Company
+                    individualFields.style.display = "none";
+                    companyFields.style.display = "block";
+                } else {
+                    individualFields.style.display = "block";
+                    companyFields.style.display = "none";
+                }
+            }
+
+            typeSelector.addEventListener("change", toggleTypeFields);
+            
+            // Przełączanie pola konta bankowego
+            var payGotowka = document.getElementById("payGotowka");
+            var payPrzelew = document.getElementById("payPrzelew");
+            var bankSection = document.getElementById("bankAccountSection");
+
+            function toggleBankAccount() {
+                if (payPrzelew.checked) {
+                    bankSection.style.display = "block";
+                } else {
+                    bankSection.style.display = "none";
+                }
+            }
+
+            payGotowka.addEventListener("change", toggleBankAccount);
+            payPrzelew.addEventListener("change", toggleBankAccount);
+
+            // Inicjalizacja
+            toggleCustomerMode();
+            toggleTypeFields();
+            toggleBankAccount();
+        });
+    </script>
+}

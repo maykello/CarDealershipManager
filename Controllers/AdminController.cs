@@ -16,12 +16,14 @@ namespace CarDealershipManager.Controllers
         private readonly IAuthService _authService;
         private readonly ICarAdminService _carAdminService;
         private readonly IContractService _contractService;
+        private readonly ICustomerAdminService _customerAdminService;
 
-        public AdminController(IAuthService authService, ICarAdminService carAdminService, IContractService contractService)
+        public AdminController(IAuthService authService, ICarAdminService carAdminService, IContractService contractService, ICustomerAdminService customerAdminService)
         {
             _authService = authService;
             _carAdminService = carAdminService;
             _contractService = contractService;
+            _customerAdminService = customerAdminService;
         }
 
         [HttpGet]
@@ -318,16 +320,91 @@ namespace CarDealershipManager.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GenerateContractPdf(int carId)
+        public async Task<IActionResult> GenerateInvoice(int carId)
         {
             var car = await _carAdminService.GetCarByIdAsync(carId);
-            if (car == null)
-                return NotFound();
+            if (car == null) return NotFound();
 
-            var pdfBytes = await _contractService.GenerateContractPdfAsync(car);
-            var contractNumber = await _contractService.GenerateContractNumberAsync();
-            var fileName = $"Umowa_{contractNumber}_{DateTime.Now:yyyyMMdd}.pdf";
+            var customers = await _customerAdminService.GetAllCustomersAsync();
+            var customerSelectList = customers
+                .Where(c => c.Id != 1) // Omijamy naszą firmę
+                .Select(c => new SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = c.Type == CarDealershipManager.Models.Entities.CustomerType.Company 
+                        ? $"{c.CompanyName} (NIP: {c.TaxId})" 
+                        : $"{c.FirstName} {c.LastName} (PESEL: {c.NationalIdNumber})"
+                });
 
+            var viewModel = new ContractGenerationViewModel
+            {
+                CarId = carId,
+                Car = car,
+                Price = car.Price,
+                ExistingCustomers = customerSelectList
+            };
+
+            return View("GenerateInvoice", viewModel);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GenerateInvoice(ContractGenerationViewModel model)
+        {
+            var car = await _carAdminService.GetCarByIdAsync(model.CarId);
+            if (car == null) return NotFound();
+
+            CarDealershipManager.Models.Entities.CustomerModel buyer;
+
+            if (model.IsNewCustomer && model.NewCustomer != null)
+            {
+                buyer = await _customerAdminService.CreateCustomerAsync(model.NewCustomer);
+            }
+            else if (model.SelectedCustomerId.HasValue)
+            {
+                buyer = await _customerAdminService.GetCustomerByIdAsync(model.SelectedCustomerId.Value);
+                if (buyer == null) return BadRequest("Nie znaleziono wybranego klienta.");
+            }
+            else
+            {
+                ModelState.AddModelError("", "Wybierz klienta lub dodaj nowego.");
+                var customersList = await _customerAdminService.GetAllCustomersAsync();
+                model.ExistingCustomers = customersList.Where(c => c.Id != 1).Select(c => new SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = c.Type == CarDealershipManager.Models.Entities.CustomerType.Company ? c.CompanyName : $"{c.FirstName} {c.LastName}"
+                });
+                model.Car = car;
+                return View("GenerateInvoice", model);
+            }
+
+            var seller = await _customerAdminService.GetCustomerByIdAsync(1); // Nasza firma
+            if (seller == null) return BadRequest("Nie skonfigurowano profilu firmy (klient ID=1).");
+
+            var userName = User.Identity?.Name;
+            var currentAdmin = await _authService.GetAdminByUserNameAsync(userName ?? "");
+            if (currentAdmin == null) return BadRequest("Nie odnaleziono zalogowanego administratora.");
+
+            var pdfBytes = await _contractService.GenerateInvoicePdfAsync(car, buyer, seller, model.Price, model.PaymentMethod, model.BankAccountNumber);
+            var invoiceNumber = await _contractService.GenerateInvoiceNumberAsync();
+            
+            // Zapisz do bazy
+            var contractDto = new ContractDto
+            {
+                ContractNumber = invoiceNumber,
+                TransactionDate = DateTime.Now,
+                Price = model.Price,
+                TransactionType = CarDealershipManager.Models.Entities.TransactionType.Sell,
+                CarId = car.CarId,
+                CustomerId = buyer.Id,
+                AdminId = currentAdmin.UserId
+            };
+            
+            await _contractService.CreateContractAsync(contractDto);
+
+            var safeNumber = invoiceNumber.Replace("/", "-");
+            var fileName = $"Faktura_{safeNumber}_{DateTime.Now:yyyyMMdd}.pdf";
             return File(pdfBytes, "application/pdf", fileName);
         }
     }

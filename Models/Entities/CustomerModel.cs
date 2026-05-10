@@ -1,10 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace CarDealershipManager.Models.Entities
 {
     public enum CustomerType
     {
+        [Display(Name = "Osoba fizyczna")]
         Individual,
+        
+        [Display(Name = "Firma")]
         Company
     }
 

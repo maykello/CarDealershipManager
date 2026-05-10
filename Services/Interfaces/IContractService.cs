@@ -1,12 +1,14 @@
 using CarDealershipManager.Models.Dtos;
+using CarDealershipManager.Models.Entities;
+using CarDealershipManager.Models.ViewModels;
 
 namespace CarDealershipManager.Services.Interfaces
 {
     public interface IContractService
     {
-        Task<string> GenerateContractNumberAsync();
+        Task<string> GenerateInvoiceNumberAsync();
 
-        Task<byte[]> GenerateContractPdfAsync(CarDto car, decimal? price = null);
+        Task<byte[]> GenerateInvoicePdfAsync(CarDto car, CustomerModel buyer, CustomerModel seller, decimal price, PaymentMethod paymentMethod, string? bankAccountNumber);
 
         Task<ContractDto?> GetContractByIdAsync(int id);
 

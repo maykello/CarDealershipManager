@@ -36,8 +36,8 @@
                             <a href="@Url.Action("Edit", "Admin", new { id = Model.CarId })" class="btn btn-sm btn-outline-warning">
                                 <i class="bi bi-pencil"></i> Edytuj
                             </a>
-                            <a href="@Url.Action("GenerateContractPdf", "Admin", new { carId = Model.CarId })" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-file-pdf"></i> Umowa PDF
+                            <a href="@Url.Action("GenerateInvoice", "Admin", new { carId = Model.CarId })" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-file-pdf"></i> Faktura VAT
                             </a>
                             <form asp-action="Delete" asp-controller="Admin" asp-route-id="@Model.CarId" method="post" class="d-inline" onsubmit="return confirm('Czy na pewno chcesz usunąć ten pojazd?');">
                                 <button type="submit" class="btn btn-sm btn-outline-danger">
