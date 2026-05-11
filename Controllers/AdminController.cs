@@ -386,8 +386,8 @@ namespace CarDealershipManager.Controllers
             var currentAdmin = await _authService.GetAdminByUserNameAsync(userName ?? "");
             if (currentAdmin == null) return BadRequest("Nie odnaleziono zalogowanego administratora.");
 
-            var pdfBytes = await _contractService.GenerateInvoicePdfAsync(car, buyer, seller, model.Price, model.PaymentMethod, model.BankAccountNumber);
             var invoiceNumber = await _contractService.GenerateInvoiceNumberAsync();
+            var pdfBytes = await _contractService.GenerateInvoicePdfAsync(invoiceNumber, car, buyer, seller, model.Price, model.PaymentMethod, model.BankAccountNumber);
             
             // Zapisz do bazy
             var contractDto = new ContractDto

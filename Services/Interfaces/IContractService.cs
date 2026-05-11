@@ -8,7 +8,7 @@ namespace CarDealershipManager.Services.Interfaces
     {
         Task<string> GenerateInvoiceNumberAsync();
 
-        Task<byte[]> GenerateInvoicePdfAsync(CarDto car, CustomerModel buyer, CustomerModel seller, decimal price, PaymentMethod paymentMethod, string? bankAccountNumber);
+        Task<byte[]> GenerateInvoicePdfAsync(string invoiceNumber, CarDto car, CustomerModel buyer, CustomerModel seller, decimal price, PaymentMethod paymentMethod, string? bankAccountNumber);
 
         Task<ContractDto?> GetContractByIdAsync(int id);
 

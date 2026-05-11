@@ -41,7 +41,7 @@ namespace CarDealershipManager.Services
             return $"{prefix}/{nextNumber:D4}";
         }
 
-        public async Task<byte[]> GenerateInvoicePdfAsync(CarDto car, CustomerModel buyer, CustomerModel seller, decimal price, PaymentMethod paymentMethod, string? bankAccountNumber)
+        public async Task<byte[]> GenerateInvoicePdfAsync(string invoiceNumber, CarDto car, CustomerModel buyer, CustomerModel seller, decimal price, PaymentMethod paymentMethod, string? bankAccountNumber)
         {
             return await Task.Run(() =>
             {
@@ -76,8 +76,7 @@ namespace CarDealershipManager.Services
                 // ═══════════════════════════════════════════════════
                 // NAGŁÓWEK: Tytuł + Data sprzedaży
                 // ═══════════════════════════════════════════════════
-                var invoiceNum = $"FV/{DateTime.Now.Month:D2}/{DateTime.Now.Year}/XXXX";
-                gfx.DrawString($"FAKTURA VAT nr {invoiceNum}", fontTitle, XBrushes.Black, margin, y + 14);
+                gfx.DrawString($"FAKTURA VAT nr {invoiceNumber}", fontTitle, XBrushes.Black, margin, y + 14);
                 
                 var today = DateTime.Now.ToString("dd.MM.yyyy");
                 gfx.DrawString($"Data sprzedaży: {today}", fontBold, XBrushes.Black, pageW - margin - 130, y + 14);
