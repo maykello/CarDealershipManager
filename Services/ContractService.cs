@@ -277,11 +277,13 @@ namespace CarDealershipManager.Services
 
             return new ContractDto
             {
-                ContractId = contract.Id,
                 ContractNumber = contract.ContractNumber,
                 TransactionDate = contract.TransactionDate,
                 Price = contract.Price,
-                TransactionType = contract.Type
+                TransactionType = contract.Type,
+                CarId = contract.Car.CarId,
+                CustomerId = contract.Customer.Id,
+                AdminId = contract.Admin.UserId
             };
         }
 
