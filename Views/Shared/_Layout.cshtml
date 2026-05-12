@@ -1,57 +1,76 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - CarDealershipManager</title>
+    <title>@ViewData["Title"] - CarDealership Manager</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CarDealershipManager.styles.css" asp-append-version="true" />
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CarDealershipManager</a>
+        <nav class="navbar navbar-expand-md navbar-light">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-car"></i> <strong>CarDealership</strong>
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="navbar-collapse collapse d-md-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-home"></i> Strona główna
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Cars">Samochody</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Cars">
+                                <i class="fas fa-car"></i> Samochody
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">
+                                <i class="fas fa-lock"></i> Polityka
+                            </a>
                         </li>
                     </ul>
                     <ul class="navbar-nav">
                         @if (User.Identity != null && User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item d-flex align-items-center">
-                                <span class="navbar-text me-3 px-2 rounded bg-success text-white user-select-none">Tryb Administratora</span>
+                            <li class="nav-item">
+                                <span class="badge badge-success me-2" style="font-size: 0.85rem; padding: 0.5rem 0.75rem;">
+                                    <i class="fas fa-shield-alt"></i> Admin
+                                </span>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="CustomerAdmin" asp-action="Index">Klienci</a>
+                                <a class="nav-link" asp-controller="CustomerAdmin" asp-action="Index">
+                                    <i class="fas fa-users"></i> Klienci
+                                </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Admin" asp-action="Panel">Panel</a>
+                                <a class="nav-link" asp-controller="Admin" asp-action="Panel">
+                                    <i class="fas fa-cog"></i> Panel
+                                </a>
                             </li>
                             <li class="nav-item">
-                                <form class="form-inline m-0 p-0" asp-controller="Admin" asp-action="Logout" method="post">
-                                    <button type="submit" class="nav-link btn btn-link text-dark border-0">Wyloguj</button>
+                                <form asp-controller="Admin" asp-action="Logout" method="post" class="m-0 d-inline">
+                                    <button type="submit" class="nav-link btn btn-link" style="color: inherit; padding: 0.5rem 0;">
+                                        <i class="fas fa-sign-out-alt"></i> Wyloguj
+                                    </button>
                                 </form>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Admin" asp-action="Login">Zaloguj</a>
+                                <a class="nav-link btn btn-primary btn-sm" asp-controller="Admin" asp-action="Login">
+                                    <i class="fas fa-sign-in-alt"></i> Zaloguj się
+                                </a>
                             </li>
                         }
                     </ul>
@@ -59,17 +78,44 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
+    <main role="main" class="page-container">
         <div class="container">
-            &copy; 2026 - CarDealershipManager - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <h5>CarDealership Manager</h5>
+                    <p>Profesjonalny system zarządzania komisem samochodów.</p>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h5>Szybkie linki</h5>
+                    <ul class="list-unstyled">
+                        <li><a asp-area="" asp-controller="Home" asp-action="Index">Strona główna</a></li>
+                        <li><a asp-area="" asp-controller="Home" asp-action="Cars">Oferta samochodów</a></li>
+                        <li><a asp-area="" asp-controller="Home" asp-action="Privacy">Polityka prywatności</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h5>Kontakt</h5>
+                    <p>
+                        <strong>Email:</strong> info@cardealership.pl<br>
+                        <strong>Telefon:</strong> +48 123 456 789<br>
+                        <strong>Godziny:</strong> Pn-Pt 9:00-17:00
+                    </p>
+                </div>
+            </div>
+            <hr class="my-3">
+            <div class="text-center text-muted">
+                <p>&copy; 2026 - CarDealership Manager. All rights reserved. | <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a></p>
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
@@ -78,20 +124,26 @@
     @if (User.Identity != null && User.Identity.IsAuthenticated)
     {
         <div class="modal fade" id="sessionTimeoutModal" tabindex="-1" aria-labelledby="sessionTimeoutModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-          <div class="modal-dialog">
-            <div class="modal-content border-warning">
-              <div class="modal-header bg-warning">
-                <h5 class="modal-title text-dark" id="sessionTimeoutModalLabel">Sesja wygasa</h5>
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header" style="background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%); color: white; border: none;">
+                <h5 class="modal-title" id="sessionTimeoutModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i> Sesja wygasa
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
-                Ze względów bezpieczeństwa Twoja sesja wygaśnie automatycznie z powodu braku aktywności w ciągu <strong id="sessionCountdown" class="text-danger fs-5">60</strong> sekund. Wszelkie niezapisane formularze będą utracone. <br/><br/> Czy chcesz przedłużyć sesję?
+                <p>Ze względów bezpieczeństwa Twoja sesja wygaśnie automatycznie z powodu braku aktywności w ciągu <strong id="sessionCountdown" style="color: #ef4444; font-size: 1.3rem;">60</strong> sekund.</p>
+                <p class="mb-0 text-muted">Wszelkie niezapisane formularze będą utracone. Czy chcesz przedłużyć sesję?</p>
               </div>
               <div class="modal-footer">
                 <form id="logoutFormModal" asp-controller="Admin" asp-action="Logout" method="post" class="m-0">
-                   <button type="submit" class="btn btn-secondary">Nie, wyloguj mnie</button>
+                   <button type="submit" class="btn btn-secondary">
+                       <i class="fas fa-sign-out-alt me-1"></i> Nie, wyloguj mnie
+                   </button>
                 </form>
                 <button id="extendSessionBtn" class="btn btn-primary" data-url="@Url.Action("KeepAlive", "Admin")">
-                    Przedłuż sesję
+                    <i class="fas fa-clock me-1"></i> Przedłuż sesję
                 </button>
               </div>
             </div>

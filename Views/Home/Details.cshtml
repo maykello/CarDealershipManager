@@ -46,7 +46,7 @@
                             </form>
                         </div>
                     }
-                    <span class="badge bg-success fs-5">@Model.CarStatus?.Name</span>
+                    <span class="badge @GetStatusBadgeClass(Model.CarStatus?.Name) fs-5">@Model.CarStatus?.Name</span>
                 </div>
             </div>
         </div>
@@ -266,7 +266,7 @@
                             <div class="row">
                                 <div class="col-12">
                                     <p class="text-muted mb-1"><small>Status pojazdu</small></p>
-                                    <span class="badge bg-success fs-6">@Model.CarStatus?.Name</span>
+                                    <span class="badge @GetStatusBadgeClass(Model.CarStatus?.Name) fs-6">@Model.CarStatus?.Name</span>
                                 </div>
                             </div>
                         </div>
@@ -396,6 +396,21 @@
 }
 
 @functions {
+    private string GetStatusBadgeClass(string statusName)
+    {
+        if (string.IsNullOrEmpty(statusName))
+            return "badge-status-other";
+
+        return statusName.ToLower() switch
+        {
+            "dostepny" => "badge-status-available",
+            "sprzedany" => "badge-status-sold",
+            "zarezerwowany" => "badge-status-reserved",
+            "w serwisie" => "badge-status-maintenance",
+            _ => "badge-status-other"
+        };
+    }
+
     private string GetColorHex(string colorName)
     {
         var colors = new Dictionary<string, string>
