@@ -1,19 +1,9 @@
-using System.ComponentModel.DataAnnotations;
+using CarDealershipManager.Models.Entities;
 
-namespace CarDealershipManager.Models.Entities
+namespace CarDealershipManager.Models.Dtos
 {
-    public enum CustomerType
+    public class CustomerDto
     {
-        [Display(Name = "Osoba fizyczna")]
-        Individual,
-        
-        [Display(Name = "Firma")]
-        Company
-    }
-
-    public class CustomerModel
-    {
-        [Key]
         public int Id { get; set; }
         public CustomerType Type { get; set; } = CustomerType.Individual;
         public string? FirstName { get; set; }
@@ -23,14 +13,11 @@ namespace CarDealershipManager.Models.Entities
         public string? TaxId { get; set; }
         public string? DocumentNumber { get; set; }
         public string? PhoneNumber { get; set; }
-        [EmailAddress]
         public string? Email { get; set; }
-        public required string Country { get; set; }
-        public required string City { get; set; }
+        public string Country { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
         public string? PostalCode { get; set; }
         public string? AddressLine1 { get; set; }
         public string? AddressLine2 { get; set; }
-        public ICollection<ContractModel> Contracts { get; set; } = new List<ContractModel>();
-        public ICollection<ReservationModel> Reservations { get; set; } = new List<ReservationModel>();
     }
 }

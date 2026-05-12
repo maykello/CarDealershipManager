@@ -1,0 +1,125 @@
+@model CarDealershipManager.Models.Entities.CustomerModel
+@using CarDealershipManager.Models.Entities
+
+@{
+    ViewData["Title"] = "Dodaj Klienta";
+}
+
+<div class="container mt-4">
+    <h2>Dodaj Klienta</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Type" class="control-label">Typ Klienta</label>
+                    <select asp-for="Type" class="form-control" asp-items="Html.GetEnumSelectList<CustomerType>()" id="typeSelector"></select>
+                    <span asp-validation-for="Type" class="text-danger"></span>
+                </div>
+
+                <div id="individualFields">
+                    <div class="form-group mb-3">
+                        <label asp-for="FirstName" class="control-label">Imię</label>
+                        <input asp-for="FirstName" class="form-control" />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="LastName" class="control-label">Nazwisko</label>
+                        <input asp-for="LastName" class="form-control" />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="NationalIdNumber" class="control-label">PESEL</label>
+                        <input asp-for="NationalIdNumber" class="form-control" />
+                        <span asp-validation-for="NationalIdNumber" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="DocumentNumber" class="control-label">Nr Dowodu/Paszportu</label>
+                        <input asp-for="DocumentNumber" class="form-control" />
+                        <span asp-validation-for="DocumentNumber" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div id="companyFields" style="display:none;">
+                    <div class="form-group mb-3">
+                        <label asp-for="CompanyName" class="control-label">Nazwa Firmy</label>
+                        <input asp-for="CompanyName" class="form-control" />
+                        <span asp-validation-for="CompanyName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="TaxId" class="control-label">NIP</label>
+                        <input asp-for="TaxId" class="form-control" />
+                        <span asp-validation-for="TaxId" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Email" class="control-label">Email</label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="PhoneNumber" class="control-label">Telefon</label>
+                    <input asp-for="PhoneNumber" class="form-control" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Country" class="control-label">Kraj</label>
+                    <input asp-for="Country" class="form-control" />
+                    <span asp-validation-for="Country" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="City" class="control-label">Miasto</label>
+                    <input asp-for="City" class="form-control" />
+                    <span asp-validation-for="City" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="PostalCode" class="control-label">Kod Pocztowy</label>
+                    <input asp-for="PostalCode" class="form-control" />
+                    <span asp-validation-for="PostalCode" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="AddressLine1" class="control-label">Adres (Linia 1)</label>
+                    <input asp-for="AddressLine1" class="form-control" />
+                    <span asp-validation-for="AddressLine1" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="AddressLine2" class="control-label">Adres (Linia 2)</label>
+                    <input asp-for="AddressLine2" class="form-control" />
+                    <span asp-validation-for="AddressLine2" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mt-4">
+                    <input type="submit" value="Dodaj" class="btn btn-primary" />
+                    <a asp-action="Index" class="btn btn-secondary ms-2">Powrót</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var typeSelector = document.getElementById("typeSelector");
+            var individualFields = document.getElementById("individualFields");
+            var companyFields = document.getElementById("companyFields");
+
+            function toggleFields() {
+                if (typeSelector.value == "1") {
+                    individualFields.style.display = "none";
+                    companyFields.style.display = "block";
+                } else {
+                    individualFields.style.display = "block";
+                    companyFields.style.display = "none";
+                }
+            }
+
+            typeSelector.addEventListener("change", toggleFields);
+            toggleFields();
+        });
+    </script>
+}

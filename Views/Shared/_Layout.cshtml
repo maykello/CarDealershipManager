@@ -37,12 +37,21 @@
                                 <span class="navbar-text me-3 px-2 rounded bg-success text-white user-select-none">Tryb Administratora</span>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="CustomerAdmin" asp-action="Index">Klienci</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Admin" asp-action="Panel">Panel</a>
                             </li>
                             <li class="nav-item">
                                 <form class="form-inline m-0 p-0" asp-controller="Admin" asp-action="Logout" method="post">
                                     <button type="submit" class="nav-link btn btn-link text-dark border-0">Wyloguj</button>
                                 </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Admin" asp-action="Login">Zaloguj</a>
                             </li>
                         }
                     </ul>

@@ -33,6 +33,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ICarAdminService, CarAdminService>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
+builder.Services.AddScoped<IContractService, ContractService>();
+builder.Services.AddScoped<ICustomerAdminService, CustomerAdminService>();
 
 // Serwer przechowuje dane szyfrujące wyłącznie w RAM - odcięcie zasilania to automatyczne wylogowanie wszystkich
 builder.Services.AddDataProtection()
@@ -50,8 +52,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 var app = builder.Build();
 
-// Seedowanie domyślnego konta admina, jeśli nie istnieje
+// Seedowanie domyślnego konta admina i firmy, jeśli nie istnieją
 await DataSeeder.SeedAdminAsync(app.Services);
+await DataSeeder.SeedCompanyPlaceholderAsync(app.Services);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
