@@ -1,17 +1,42 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>e90a4652-9d56-48b2-811b-0709026eb7d6</UserSecretsId>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.5">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="16.1.1" />
+		<PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
+		<PackageReference Include="CloudinaryDotNet" Version="1.28.0" />
+		<PackageReference Include="PdfSharp" Version="6.1.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.5">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.5" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.5">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<InternalsVisibleTo Include="CarDealershipManager.UnitTests" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Remove="CarDealershipManager.IntegrationTests\**" />
+		<Content Remove="CarDealershipManager.IntegrationTests\**" />
+		<EmbeddedResource Remove="CarDealershipManager.IntegrationTests\**" />
+		<None Remove="CarDealershipManager.IntegrationTests\**" />
+		<Compile Remove="CarDealershipManager.UnitTests\**" />
+		<Content Remove="CarDealershipManager.UnitTests\**" />
+		<EmbeddedResource Remove="CarDealershipManager.UnitTests\**" />
+		<None Remove="CarDealershipManager.UnitTests\**" />
+	</ItemGroup>
 
 </Project>

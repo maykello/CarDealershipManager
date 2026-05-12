@@ -1,3 +1,5 @@
 <Solution>
   <Project Path="CarDealershipManager.csproj" />
+  <Project Path="CarDealershipManager.IntegrationTests/CarDealershipManager.IntegrationTests.csproj" />
+  <Project Path="CarDealershipManager.UnitTests/CarDealershipManager.UnitTests.csproj" />
 </Solution>

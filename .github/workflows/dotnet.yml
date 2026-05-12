@@ -5,9 +5,9 @@ name: .NET
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "Development" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "Development" ]
 
 jobs:
   build:
@@ -24,5 +24,8 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
+      
     - name: Test
       run: dotnet test --no-build --verbosity normal
+      env:
+        ConnectionStrings__DefaultConnection: ${{ secrets.DB_CONNECTION_STRING }}

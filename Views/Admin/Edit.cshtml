@@ -1,0 +1,514 @@
+@model CarDealershipManager.Models.ViewModels.CarFormViewModel
+
+@{
+    ViewData["Title"] = $"Edytuj {Model.Car.Generation?.Model?.Make?.Name} {Model.Car.Generation?.Model?.Name}";
+}
+
+<div class="container mt-5 mb-5">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mb-4">Edytuj Pojazd</h1>
+
+            <form asp-action="Edit" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Car.CarId" />
+                <input type="hidden" asp-for="MainPhotoFilename" id="MainPhotoFilename" />
+
+                <!-- Wyświetlanie błędów walidacji -->
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Błędy walidacji:</strong>
+                        <ul class="mb-0">
+                            @foreach (var modelState in ViewData.ModelState.Values)
+                            {
+                                @foreach (var error in modelState.Errors)
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            }
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                <div class="row">
+                    <!-- Informacje Podstawowe -->
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">Informacje Podstawowe</h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Marka -->
+                                <div class="mb-3">
+                                    <label asp-for="Car.MakeId" class="form-label">
+                                        <strong>Marka</strong>
+                                    </label>
+                                    <select asp-for="Car.MakeId" asp-items="Model.Makes" 
+                                        class="form-select" id="makeSelect">
+                                        <option value="">Wybierz markę pojazdu</option>
+                                    </select>
+                                </div>
+
+                                <!-- Model -->
+                                <div class="mb-3">
+                                    <label asp-for="Car.ModelId" class="form-label">
+                                        <strong>Model</strong>
+                                    </label>
+                                    <select asp-for="Car.ModelId" asp-items="Model.Models" 
+                                        class="form-select" id="modelSelect">
+                                        <option value="">Wybierz model pojazdu</option>
+                                    </select>
+                                </div>
+
+                                <!-- Generacja -->
+                                <div class="mb-3">
+                                    <label asp-for="Car.GenerationId" class="form-label">
+                                        <strong>Generacja</strong> <span class="text-danger">*</span>
+                                    </label>
+                                    <select asp-for="Car.GenerationId" asp-items="Model.Generations" 
+                                        class="form-select" id="generationSelect" required>
+                                        <option value="">Wybierz generację pojazdu</option>
+                                    </select>
+                                </div>
+
+                                <!-- Rok Produkcji -->
+                                <div class="mb-3">
+                                    <label asp-for="Car.ProductionYear" class="form-label">
+                                        <strong>Rok Produkcji</strong> <span class="text-danger">*</span>
+                                    </label>
+                                    <input asp-for="Car.ProductionYear" type="number" min="1900" max="2099" 
+                                        class="form-control" required />
+                                    <span asp-validation-for="Car.ProductionYear" class="text-danger small"></span>
+                                </div>
+
+                                <!-- Moc Silnika -->
+                                <div class="mb-3">
+                                    <label asp-for="Car.HorsePower" class="form-label">
+                                        <strong>Moc Silnika (KM)</strong> <span class="text-danger">*</span>
+                                    </label>
+                                    <input asp-for="Car.HorsePower" type="number" min="0" 
+                                        class="form-control" required />
+                                    <span asp-validation-for="Car.HorsePower" class="text-danger small"></span>
+                                </div>
+
+                                <!-- Przebieg -->
+                                <div class="mb-3">
+                                    <label asp-for="Car.Mileage" class="form-label">
+                                        <strong>Przebieg (km)</strong> <span class="text-danger">*</span>
+                                    </label>
+                                    <input asp-for="Car.Mileage" type="number" min="0" 
+                                        class="form-control" required />
+                                    <span asp-validation-for="Car.Mileage" class="text-danger small"></span>
+                                </div>
+
+                                <!-- Numer VIN -->
+                                <div class="mb-3">
+                                    <label asp-for="Car.Vin" class="form-label">
+                                        <strong>Numer VIN</strong> <span class="text-danger">*</span>
+                                    </label>
+                                    <input asp-for="Car.Vin" class="form-control font-monospace" 
+                                        maxlength="17" required />
+                                    <span asp-validation-for="Car.Vin" class="text-danger small"></span>
+                                </div>
+
+                                <!-- Cena -->
+                                <div class="mb-3">
+                                    <label asp-for="Car.Price" class="form-label">
+                                        <strong>Cena (PLN)</strong> <span class="text-danger">*</span>
+                                    </label>
+                                    <input asp-for="Car.Price" type="number" min="0" step="0.01" 
+                                        class="form-control" required />
+                                    <span asp-validation-for="Car.Price" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Szczegóły Techniczne -->
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0">Szczegóły Techniczne</h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Typ Paliwa -->
+                                <div class="mb-3">
+                                    <label asp-for="Car.FuelTypeId" class="form-label">
+                                        <strong>Typ Paliwa</strong> <span class="text-danger">*</span>
+                                    </label>
+                                    <select asp-for="Car.FuelTypeId" asp-items="Model.FuelTypes" 
+                                        class="form-select" required>
+                                        <option value="">Wybierz typ paliwa</option>
+                                    </select>
+                                </div>
+
+                                <!-- Transmisja -->
+                                <div class="mb-3">
+                                    <label asp-for="Car.TransmissionTypeId" class="form-label">
+                                        <strong>Typ Transmisji</strong>
+                                    </label>
+                                    <select asp-for="Car.TransmissionTypeId" 
+                                        asp-items="Model.TransmissionTypes" class="form-select">
+                                        <option value="">Wybierz typ transmisji</option>
+                                    </select>
+                                </div>
+
+                                <!-- Napęd -->
+                                <div class="mb-3">
+                                    <label asp-for="Car.DrivetrainId" class="form-label">
+                                        <strong>Napęd</strong>
+                                    </label>
+                                    <select asp-for="Car.DrivetrainId" asp-items="Model.Drivetrains" 
+                                        class="form-select">
+                                        <option value="">Wybierz typ napędu</option>
+                                    </select>
+                                </div>
+
+                                <!-- Typ Nadwozia -->
+                                <div class="mb-3">
+                                    <label asp-for="Car.BodyTypeId" class="form-label">
+                                        <strong>Typ Nadwozia</strong>
+                                    </label>
+                                    <select asp-for="Car.BodyTypeId" asp-items="Model.BodyTypes" 
+                                        class="form-select">
+                                        <option value="">Wybierz typ nadwozia</option>
+                                    </select>
+                                </div>
+
+                                <!-- Kolor -->
+                                <div class="mb-3">
+                                    <label asp-for="Car.ColorId" class="form-label">
+                                        <strong>Kolor</strong>
+                                    </label>
+                                    <select asp-for="Car.ColorId" asp-items="Model.Colors" 
+                                        class="form-select">
+                                        <option value="">Wybierz kolor</option>
+                                    </select>
+                                </div>
+
+                                <!-- Klasa Euro -->
+                                <div class="mb-3">
+                                    <label asp-for="Car.EuroClassId" class="form-label">
+                                        <strong>Klasa Euro</strong>
+                                    </label>
+                                    <select asp-for="Car.EuroClassId" asp-items="Model.EuroClasses" 
+                                        class="form-select">
+                                        <option value="">Wybierz klasę Euro</option>
+                                    </select>
+                                </div>
+
+                                <!-- Status Pojazdu -->
+                                <div class="mb-3">
+                                    <label asp-for="Car.CarStatusId" class="form-label">
+                                        <strong>Status Pojazdu</strong> <span class="text-danger">*</span>
+                                    </label>
+                                    <select asp-for="Car.CarStatusId" asp-items="Model.CarStatuses" 
+                                        class="form-select" required>
+                                        <option value="">Wybierz status pojazdu</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @if (Model.Car.Gallery != null && Model.Car.Gallery.Any())
+                {
+                    <div class="card mb-4" id="galleryContainer">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="mb-0">Zarządzaj wgranymi zdjęciami</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex flex-wrap gap-3" id="existingGallery">
+                                @foreach (var photo in Model.Car.Gallery.OrderByDescending(g => g.IsMain))
+                                {
+                                    <div class="position-relative" id="photo-@photo.PhotoId">
+                                        <img src="@photo.FilePath" class="rounded border" style="width: 150px; height: 150px; object-fit: cover;" />
+                                        
+                                        <div class="position-absolute top-0 end-0 p-1">
+                                            <button type="button" class="btn btn-sm btn-danger" title="Usuń" onclick="deletePhoto(@photo.PhotoId)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                        <div class="position-absolute bottom-0 start-0 p-1">
+                                            <button type="button" class="btn btn-sm @(photo.IsMain ? "btn-warning" : "btn-light")" title="Ustaw jako okładkę" onclick="setMainPhoto(@Model.Car.CarId, @photo.PhotoId)" id="btnMain-@photo.PhotoId">
+                                                <i class="bi bi-star-fill"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Zdjęcia -->
+                <div class="card mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">Dodaj następne zdjęcia pojazdu</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label asp-for="Photos" class="form-label">
+                                <strong>Wybierz zdjęcia do dodania</strong>
+                            </label>
+                            <input asp-for="Photos" type="file" multiple class="form-control" accept="image/*" id="photoInput" />
+                            <small class="text-muted">Aktualnie wgrane zdjęcia nie zostaną usunięte.</small>
+                        </div>
+                        <div id="imagePreviews" class="d-flex flex-wrap gap-2 mt-3"></div>
+                    </div>
+                </div>
+
+                <!-- Opis -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Dodatkowe Informacje</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label asp-for="Car.Description" class="form-label">
+                                <strong>Opis Pojazdu</strong>
+                            </label>
+                            <textarea asp-for="Car.Description" class="form-control" rows="5" 
+                                placeholder="Dodaj szczegółowy opis pojazdu, stan techniczny, serwis itp."></textarea>
+                            <small class="text-muted">Maksymalnie 2000 znaków</small>
+                            <span asp-validation-for="Car.Description" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Przyciski Akcji -->
+                <div class="d-flex gap-2 mb-5">
+                    <button type="submit" class="btn btn-warning btn-lg">
+                        <i class="bi bi-check-circle"></i> Zapisz Zmiany
+                    </button>
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-secondary btn-lg">
+                        <i class="bi bi-x-circle"></i> Anuluj
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const makeSelect = document.getElementById('makeSelect');
+            const modelSelect = document.getElementById('modelSelect');
+            const generationSelect = document.getElementById('generationSelect');
+
+            // Funkcja do załadowania modeli
+            function loadModels(makeId, selectedModelId = null, selectedGenerationId = null) {
+                modelSelect.innerHTML = '<option value="">Wybierz model pojazdu</option>';
+                generationSelect.innerHTML = '<option value="">Wybierz generację pojazdu</option>';
+
+                if (makeId) {
+                    fetch(`/Admin/GetModelsByMake?makeId=${makeId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            data.forEach(model => {
+                                const option = document.createElement('option');
+                                option.value = model.id;
+                                option.textContent = model.name;
+                                if (selectedModelId && model.id == selectedModelId) {
+                                    option.selected = true;
+                                }
+                                modelSelect.appendChild(option);
+                            });
+
+                            if (selectedModelId) {
+                                loadGenerations(selectedModelId, selectedGenerationId);
+                            }
+                        });
+                }
+            }
+
+            // Funkcja do załadowania generacji
+            function loadGenerations(modelId, selectedGenerationId = null) {
+                generationSelect.innerHTML = '<option value="">Wybierz generację pojazdu</option>';
+
+                if (modelId) {
+                    fetch(`/Admin/GetGenerationsByModel?modelId=${modelId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            data.forEach(generation => {
+                                const option = document.createElement('option');
+                                option.value = generation.id;
+                                option.textContent = generation.name;
+                                if (selectedGenerationId && generation.id == selectedGenerationId) {
+                                    option.selected = true;
+                                }
+                                generationSelect.appendChild(option);
+                            });
+                        });
+                }
+            }
+
+
+            makeSelect.addEventListener('change', function () {
+                loadModels(this.value);
+            });
+
+
+            modelSelect.addEventListener('change', function () {
+                loadGenerations(this.value);
+            });
+
+
+            const initialMakeId = makeSelect.value;
+            const initialModelId = modelSelect.value;
+            const initialGenerationId = generationSelect.value;
+
+            if (initialMakeId) {
+                loadModels(initialMakeId, initialModelId, initialGenerationId);
+            }
+
+            // Podgląd plików
+            const photoInput = document.getElementById('photoInput');
+            const imagePreviews = document.getElementById('imagePreviews');
+            let accumulatedFiles = [];
+
+            function updateInputAndPreviews() {
+                const dt = new DataTransfer();
+                accumulatedFiles.forEach(f => dt.items.add(f));
+                photoInput.files = dt.files;
+                
+                imagePreviews.innerHTML = '';
+                accumulatedFiles.forEach((file, index) => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const wrapper = document.createElement('div');
+                            wrapper.className = 'position-relative';
+                            
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.classList.add('rounded', 'border');
+                            img.style.width = '120px';
+                            img.style.height = '120px';
+                            img.style.objectFit = 'cover';
+                            
+                            const removeBtn = document.createElement('button');
+                            removeBtn.innerHTML = '<i class="bi bi-x"></i>';
+                            removeBtn.className = 'btn btn-sm btn-danger position-absolute top-0 end-0 p-0 rounded-circle';
+                            removeBtn.style.width = '24px';
+                            removeBtn.style.height = '24px';
+                            removeBtn.title = 'Usuń to dodane zdjęcie z listy przed wgraniem';
+                            removeBtn.onclick = function(ev) {
+                                ev.preventDefault();
+                                accumulatedFiles.splice(index, 1);
+                                if (document.getElementById('MainPhotoFilename').value === file.name) {
+                                    document.getElementById('MainPhotoFilename').value = '';
+                                }
+                                updateInputAndPreviews();
+                            };
+                            
+                            const mainBtn = document.createElement('button');
+                            mainBtn.innerHTML = '<i class="bi bi-star-fill"></i>';
+                            
+                            if (document.getElementById('MainPhotoFilename').value === file.name) {
+                                mainBtn.className = 'btn btn-sm btn-warning position-absolute bottom-0 start-0 p-1 new-main-btn';
+                            } else {
+                                mainBtn.className = 'btn btn-sm btn-light position-absolute bottom-0 start-0 p-1 new-main-btn';
+                            }
+                            
+                            mainBtn.title = 'Ustaw jako okładkę';
+                            mainBtn.onclick = function(ev) {
+                                ev.preventDefault();
+                                document.querySelectorAll('.new-main-btn').forEach(btn => {
+                                    btn.classList.remove('btn-warning');
+                                    btn.classList.add('btn-light');
+                                });
+                                document.querySelectorAll('button[id^="btnMain-"]').forEach(btn => {
+                                    btn.classList.remove('btn-warning');
+                                    btn.classList.add('btn-light');
+                                });
+                                mainBtn.classList.remove('btn-light');
+                                mainBtn.classList.add('btn-warning');
+                                document.getElementById('MainPhotoFilename').value = file.name;
+                            };
+                            
+                            wrapper.appendChild(img);
+                            wrapper.appendChild(removeBtn);
+                            wrapper.appendChild(mainBtn);
+                            imagePreviews.appendChild(wrapper);
+                        }
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            if(photoInput) {
+                photoInput.addEventListener('change', function(e) {
+                    if (e.target.files.length > 0) {
+                        Array.from(e.target.files).forEach(f => accumulatedFiles.push(f));
+                        updateInputAndPreviews();
+                    }
+                });
+            }
+        });
+
+        function deletePhoto(photoId) {
+            if(confirm("Czy na pewno usunąć to zdjęcie? Zostanie ono skasowane trwale z serwera oraz bazy danych.")) {
+                fetch('/Admin/DeletePhoto', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `photoId=${photoId}&__RequestVerificationToken=${document.querySelector('input[name="__RequestVerificationToken"]').value}`
+                })
+                .then(r => {
+                    if(r.ok) {
+                        document.getElementById('photo-' + photoId).remove();
+                    } else alert('Błąd podczas usuwania. Sprawdź opcje w kontrolerze.');
+                });
+            }
+        }
+
+        function setMainPhoto(carId, photoId) {
+            fetch('/Admin/SetMainPhoto', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `carId=${carId}&photoId=${photoId}&__RequestVerificationToken=${document.querySelector('input[name="__RequestVerificationToken"]').value}`
+            })
+            .then(r => {
+                if(r.ok) {
+                    document.querySelectorAll('button[id^="btnMain-"]').forEach(btn => {
+                        btn.classList.remove('btn-warning');
+                        btn.classList.add('btn-light');
+                    });
+                    const targetBtn = document.getElementById('btnMain-' + photoId);
+                    if(targetBtn) {
+                        targetBtn.classList.remove('btn-light');
+                        targetBtn.classList.add('btn-warning');
+                    }
+                    
+                    document.querySelectorAll('.new-main-btn').forEach(btn => {
+                        btn.classList.remove('btn-warning');
+                        btn.classList.add('btn-light');
+                    });
+                    document.getElementById('MainPhotoFilename').value = '';
+                } else alert('Błąd podczas ustawiania zdjęcia.');
+            });
+        }
+
+        // Bootstrap form validation
+        (function () {
+            'use strict';
+            window.addEventListener('load', function () {
+                var forms = document.getElementsByClassName('needs-validation');
+                var validation = Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    </script>
+}

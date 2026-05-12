@@ -1,0 +1,61 @@
+@model CarDealershipManager.Models.Entities.CustomerModel
+@using CarDealershipManager.Models.Entities
+
+@{
+    ViewData["Title"] = "Usuń Klienta";
+}
+
+<div class="container mt-4">
+    <h2>Usuń Klienta</h2>
+
+    @if (Model.Id == 1)
+    {
+        <div class="alert alert-danger">
+            <strong>Ostrzeżenie!</strong> Próbujesz usunąć rekord reprezentujący naszą firmę (ID=1). Ta operacja jest zablokowana.
+        </div>
+        <div>
+            <a asp-action="Index" class="btn btn-secondary">Powrót</a>
+        </div>
+    }
+    else
+    {
+        <h3>Czy na pewno chcesz usunąć tego klienta?</h3>
+        <div>
+            <hr />
+            <dl class="row">
+                <dt class="col-sm-2">Typ</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Type)</dd>
+                
+                @if (Model.Type == CustomerType.Company)
+                {
+                    <dt class="col-sm-2">Nazwa Firmy</dt>
+                    <dd class="col-sm-10">@Html.DisplayFor(model => model.CompanyName)</dd>
+                    <dt class="col-sm-2">NIP</dt>
+                    <dd class="col-sm-10">@Html.DisplayFor(model => model.TaxId)</dd>
+                }
+                else
+                {
+                    <dt class="col-sm-2">Imię i Nazwisko</dt>
+                    <dd class="col-sm-10">@Model.FirstName @Model.LastName</dd>
+                    <dt class="col-sm-2">PESEL</dt>
+                    <dd class="col-sm-10">@Html.DisplayFor(model => model.NationalIdNumber)</dd>
+                }
+
+                <dt class="col-sm-2">Email</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Email)</dd>
+                
+                <dt class="col-sm-2">Telefon</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.PhoneNumber)</dd>
+                
+                <dt class="col-sm-2">Miasto</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.City)</dd>
+            </dl>
+            
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="Id" />
+                <input type="submit" value="Usuń" class="btn btn-danger" /> |
+                <a asp-action="Index" class="btn btn-secondary">Powrót</a>
+            </form>
+        </div>
+    }
+</div>

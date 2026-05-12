@@ -1,0 +1,46 @@
+@model CarDealershipManager.Models.Dtos.LoginDto
+
+@{
+    ViewData["Title"] = "Panel Logowania";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <h3 class="text-center mb-4">Zarządzanie komisem</h3>
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form asp-controller="Admin" asp-action="Login" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="UserName" class="form-label">Login</label>
+                            <input asp-for="UserName" class="form-control" placeholder="Wpisz login" />
+                            <span asp-validation-for="UserName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label">Hasło</label>
+                            <input asp-for="Password" class="form-control" type="password" placeholder="Wpisz hasło" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary">Zaloguj się</button>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a asp-controller="Admin" asp-action="ForgotPassword" class="text-decoration-none text-muted small">Zapomniałeś hasła?</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <a asp-controller="Home" asp-action="Index" class="text-decoration-none">Wróć na stronę główną</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
