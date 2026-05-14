@@ -42,13 +42,13 @@ namespace CarDealershipManager.Controllers
         {
             if (ModelState.IsValid)
             {
-                bool isValid = await _authService.ValidateAdminCredentialsAsync(model.UserName, model.Password);
+                var admin = await _authService.ValidateAndGetAdminAsync(model.UserName, model.Password);
 
-                if (isValid)
+                if (admin != null)
                 {
                     var claims = new List<Claim>
                     {
-                        new Claim(ClaimTypes.Name, model.UserName),
+                        new Claim(ClaimTypes.Name, admin.UserName),
                         new Claim(ClaimTypes.Role, "Admin")
                     };
 
@@ -170,6 +170,13 @@ namespace CarDealershipManager.Controllers
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpPost]
+        [Authorize]
+        public IActionResult KeepAlive()
+        {
+            return Ok();
         }
 
         // CRUD Operations for Cars

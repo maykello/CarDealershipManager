@@ -1,0 +1,67 @@
+@model CarDealershipManager.Models.ViewModels.UserCreatedViewModel
+
+@{
+    ViewData["Title"] = "Użytkownik Utworzony";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <h3 class="text-center mb-4">Użytkownik utworzony pomyślnie</h3>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-success text-white rounded-top">
+                    <h5 class="mb-0">Dane logowania</h5>
+                </div>
+                <div class="card-body bg-light">
+                    <div class="alert alert-warning">
+                        <strong>Uwaga!</strong> Zapisz te dane teraz. Hasło nie będzie ponownie widoczne po opuszczeniu tej strony.
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Login:</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control bg-white" value="@Model.UserName" readonly id="userNameField" />
+                            <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('userNameField')">Kopiuj</button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Wygenerowane hasło:</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control bg-white font-monospace fs-5" value="@Model.GeneratedPassword" readonly id="passwordField" />
+                            <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('passwordField')">Kopiuj</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center gap-3 mt-4">
+                <a asp-action="Create" class="btn btn-success">Dodaj kolejnego</a>
+                <a asp-action="Index" class="btn btn-outline-primary">Wróć do listy</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function copyToClipboard(fieldId) {
+            var field = document.getElementById(fieldId);
+            field.select();
+            field.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(field.value).then(function () {
+                var btn = field.nextElementSibling;
+                var originalText = btn.innerText;
+                btn.innerText = 'Skopiowano!';
+                btn.classList.remove('btn-outline-secondary');
+                btn.classList.add('btn-success');
+                setTimeout(function () {
+                    btn.innerText = originalText;
+                    btn.classList.remove('btn-success');
+                    btn.classList.add('btn-outline-secondary');
+                }, 1500);
+            });
+        }
+    </script>
+}

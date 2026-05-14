@@ -82,5 +82,60 @@ namespace CarDealershipManager.Services
 
             return true;
         }
+
+        public async Task<AdminModel?> ValidateAndGetAdminAsync(string usernameOrEmail, string password)
+        {
+            var admin = await _context.Admins.FirstOrDefaultAsync(a => a.UserName == usernameOrEmail || a.Email == usernameOrEmail);
+
+            if (admin == null)
+            {
+                return null;
+            }
+
+            if (!BCrypt.Net.BCrypt.Verify(password, admin.Password))
+            {
+                return null;
+            }
+
+            return admin;
+        }
+
+        public async Task<(AdminModel user, string generatedPassword)> CreateUserAsync(string userName, string? email)
+        {
+            var passwordChars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789!@$?_-";
+            var random = new Random();
+            var generatedPassword = new string(Enumerable.Repeat(passwordChars, 8)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+
+            var admin = new AdminModel
+            {
+                UserName = userName,
+                Email = email,
+                Password = BCrypt.Net.BCrypt.HashPassword(generatedPassword)
+            };
+
+            _context.Admins.Add(admin);
+            await _context.SaveChangesAsync();
+
+            return (admin, generatedPassword);
+        }
+
+        public async Task<List<AdminModel>> GetAllAdminsAsync()
+        {
+            return await _context.Admins.ToListAsync();
+        }
+
+        public async Task<bool> DeleteAdminAsync(int userId)
+        {
+            var admin = await _context.Admins.FindAsync(userId);
+            if (admin == null)
+            {
+                return false;
+            }
+
+            _context.Admins.Remove(admin);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }
