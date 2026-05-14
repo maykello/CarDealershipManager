@@ -4,7 +4,8 @@ namespace CarDealershipManager.Models.Dtos
 {
     public class LoginDto
     {
-        [Required(ErrorMessage = "Login jest wymagany.")]
+        [Required(ErrorMessage = "Login lub email jest wymagany.")]
+        [Display(Name = "Login lub Email")]
         public string UserName { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Hasło jest wymagane.")]

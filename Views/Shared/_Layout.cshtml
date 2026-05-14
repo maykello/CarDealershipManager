@@ -52,6 +52,12 @@
                                     <i class="fas fa-users"></i> Klienci
                                 </a>
                             </li>
+                            @if (User.Identity.Name == "admin")
+                            {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="UserManagement" asp-action="Index">Użytkownicy</a>
+                            </li>
+                            }
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Admin" asp-action="Panel">
                                     <i class="fas fa-cog"></i> Panel
