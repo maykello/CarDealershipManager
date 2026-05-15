@@ -225,7 +225,7 @@
                                 @foreach (var photo in Model.Car.Gallery.OrderByDescending(g => g.IsMain))
                                 {
                                     <div class="position-relative" id="photo-@photo.PhotoId">
-                                        <img src="@photo.FilePath" class="rounded border" style="width: 150px; height: 150px; object-fit: cover;" />
+                                        <img src="@photo.FilePath" class="rounded border" style="width: 150px; height: 150px; object-fit: cover;" loading="lazy" />
                                         
                                         <div class="position-absolute top-0 end-0 p-1">
                                             <button type="button" class="btn btn-sm btn-danger" title="Usuń" onclick="deletePhoto(@photo.PhotoId)">

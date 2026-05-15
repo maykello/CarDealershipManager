@@ -62,7 +62,7 @@
                         @foreach (var (image, index) in Model.Gallery.OrderByDescending(g => g.IsMain).Select((x, i) => (x, i)))
                         {
                             <div class="carousel-item @(index == 0 ? "active" : "")">
-                                <img src="@image.FilePath" class="d-block w-100 rounded" alt="@Model.Generation?.Model?.Make?.Name @Model.Generation?.Model?.Name" style="height: 500px; object-fit: cover;">
+                                <img src="@image.FilePath" class="d-block w-100 rounded" alt="@Model.Generation?.Model?.Make?.Name @Model.Generation?.Model?.Name" style="height: 500px; object-fit: cover;" loading="lazy">
                             </div>
                         }
                     </div>
