@@ -46,7 +46,7 @@
                             </form>
                         </div>
                     }
-                    <span class="badge bg-success fs-5">@Model.CarStatus?.Name</span>
+                    <span class="badge @GetStatusBadgeClass(Model.CarStatus?.Name) fs-5">@Model.CarStatus?.Name</span>
                 </div>
             </div>
         </div>
@@ -55,29 +55,53 @@
     <!-- Gallery Section -->
     <div class="row mb-5">
         <div class="col-md-8">
-            @if (Model.Gallery != null && Model.Gallery.Any())
+            @{
+                var orderedGallery = Model.Gallery?.OrderByDescending(g => g.IsMain).ToList();
+            }
+            @if (orderedGallery != null && orderedGallery.Any())
             {
-                <div id="carGallery" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-inner">
-                        @foreach (var (image, index) in Model.Gallery.OrderByDescending(g => g.IsMain).Select((x, i) => (x, i)))
+                <div id="carGalleryCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <!-- Images -->
+                    <div class="carousel-inner bg-dark rounded">
+                        @foreach (var (image, index) in orderedGallery.Select((x, i) => (x, i)))
                         {
                             <div class="carousel-item @(index == 0 ? "active" : "")">
-                                <img src="@image.FilePath" class="d-block w-100 rounded" alt="@Model.Generation?.Model?.Make?.Name @Model.Generation?.Model?.Name" style="height: 500px; object-fit: cover;">
+                                <img src="@image.FilePath" class="d-block w-100" style="height: 500px; object-fit: cover; cursor: pointer;" alt="Zdjęcie pojazdu" loading="lazy" data-bs-toggle="modal" data-bs-target="#galleryModal">
                             </div>
                         }
                     </div>
-                    @if (Model.Gallery.Count > 1)
+
+                    <!-- Navigation -->
+                    @if (orderedGallery.Count > 1)
                     {
-                        <button class="carousel-control-prev" type="button" data-bs-target="#carGallery" data-bs-slide="prev">
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carGalleryCarousel" data-bs-slide="prev">
                             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Poprzednia</span>
+                            <span class="visually-hidden">Poprzednie</span>
                         </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#carGallery" data-bs-slide="next">
+                        <button class="carousel-control-next" type="button" data-bs-target="#carGalleryCarousel" data-bs-slide="next">
                             <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Następna</span>
+                            <span class="visually-hidden">Następne</span>
                         </button>
                     }
                 </div>
+
+                <!-- Thumbnails (Bootstrap flex) -->
+                @if (orderedGallery.Count > 1)
+                {
+                    <div class="d-flex overflow-auto gap-2 mt-2 pb-2">
+                        @foreach (var (image, index) in orderedGallery.Select((x, i) => (x, i)))
+                        {
+                            <img src="@image.FilePath" 
+                                 class="rounded border border-secondary" 
+                                 style="width: 80px; height: 60px; object-fit: cover; cursor: pointer; opacity: 0.8;" 
+                                 onmouseover="this.style.opacity='1'" 
+                                 onmouseout="this.style.opacity='0.8'"
+                                 data-bs-target="#carGalleryCarousel" 
+                                 data-bs-slide-to="@index" 
+                                 alt="Miniaturka">
+                        }
+                    </div>
+                }
             }
             else
             {
@@ -266,7 +290,7 @@
                             <div class="row">
                                 <div class="col-12">
                                     <p class="text-muted mb-1"><small>Status pojazdu</small></p>
-                                    <span class="badge bg-success fs-6">@Model.CarStatus?.Name</span>
+                                    <span class="badge @GetStatusBadgeClass(Model.CarStatus?.Name) fs-6">@Model.CarStatus?.Name</span>
                                 </div>
                             </div>
                         </div>
@@ -392,10 +416,98 @@
     </div>
 </div>
 
+<!-- Fullscreen Gallery Modal -->
+<div class="modal fade" id="galleryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content bg-dark">
+            <div class="modal-header border-0 pb-0">
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+            </div>
+            <div class="modal-body d-flex flex-column justify-content-center align-items-center pt-0">
+                <div id="modalCarousel" class="carousel slide w-100" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        @if (Model.Gallery != null)
+                        {
+                            var orderedGalleryModal = Model.Gallery.OrderByDescending(g => g.IsMain).ToList();
+                            @foreach (var (image, index) in orderedGalleryModal.Select((x, i) => (x, i)))
+                            {
+                                <div class="carousel-item @(index == 0 ? "active" : "")">
+                                    <img src="@image.FilePath" class="d-block w-100" style="height: 75vh; object-fit: contain;" alt="Zdjęcie pojazdu">
+                                </div>
+                            }
+                        }
+                    </div>
+                    @if (Model.Gallery != null && Model.Gallery.Count > 1)
+                    {
+                        <button class="carousel-control-prev" type="button" data-bs-target="#modalCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Poprzednie</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#modalCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Następne</span>
+                        </button>
+                    }
+                </div>
+                
+                <!-- Modal Thumbnails -->
+                @if (Model.Gallery != null && Model.Gallery.Count > 1)
+                {
+                    var orderedGalleryModal = Model.Gallery.OrderByDescending(g => g.IsMain).ToList();
+                    <div class="d-flex overflow-auto gap-2 mt-3 pb-2 justify-content-center w-100">
+                        @foreach (var (image, index) in orderedGalleryModal.Select((x, i) => (x, i)))
+                        {
+                            <img src="@image.FilePath" 
+                                 class="rounded border border-secondary" 
+                                 style="width: 80px; height: 60px; object-fit: cover; cursor: pointer; opacity: 0.8;" 
+                                 onmouseover="this.style.opacity='1'" 
+                                 onmouseout="this.style.opacity='0.8'"
+                                 data-bs-target="#modalCarousel" 
+                                 data-bs-slide-to="@index" 
+                                 alt="Miniaturka">
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
+<script>
+    const galleryModal = document.getElementById('galleryModal');
+    const modalCarousel = document.getElementById('modalCarousel');
+    const mainCarousel = document.getElementById('carGalleryCarousel');
+
+    if (galleryModal && modalCarousel && mainCarousel) {
+        galleryModal.addEventListener('show.bs.modal', function () {
+            const activeItem = mainCarousel.querySelector('.carousel-item.active');
+            const items = Array.from(mainCarousel.querySelectorAll('.carousel-item'));
+            const index = items.indexOf(activeItem);
+            
+            const bsModalCarousel = bootstrap.Carousel.getOrCreateInstance(modalCarousel);
+            bsModalCarousel.to(index);
+        });
+    }
+</script>
 }
 
 @functions {
+    private string GetStatusBadgeClass(string statusName)
+    {
+        if (string.IsNullOrEmpty(statusName))
+            return "badge-status-other";
+
+        return statusName.ToLower() switch
+        {
+            "dostepny" => "badge-status-available",
+            "sprzedany" => "badge-status-sold",
+            "zarezerwowany" => "badge-status-reserved",
+            "w serwisie" => "badge-status-maintenance",
+            _ => "badge-status-other"
+        };
+    }
+
     private string GetColorHex(string colorName)
     {
         var colors = new Dictionary<string, string>

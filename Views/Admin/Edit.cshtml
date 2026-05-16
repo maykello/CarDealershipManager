@@ -225,7 +225,7 @@
                                 @foreach (var photo in Model.Car.Gallery.OrderByDescending(g => g.IsMain))
                                 {
                                     <div class="position-relative" id="photo-@photo.PhotoId">
-                                        <img src="@photo.FilePath" class="rounded border" style="width: 150px; height: 150px; object-fit: cover;" />
+                                        <img src="@photo.FilePath" class="rounded border" style="width: 150px; height: 150px; object-fit: cover;" loading="lazy" />
                                         
                                         <div class="position-absolute top-0 end-0 p-1">
                                             <button type="button" class="btn btn-sm btn-danger" title="Usuń" onclick="deletePhoto(@photo.PhotoId)">
@@ -292,6 +292,8 @@
         </div>
     </div>
 </div>
+
+<partial name="_ImageCropper" />
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
@@ -445,8 +447,19 @@
             if(photoInput) {
                 photoInput.addEventListener('change', function(e) {
                     if (e.target.files.length > 0) {
-                        Array.from(e.target.files).forEach(f => accumulatedFiles.push(f));
-                        updateInputAndPreviews();
+                        const newFiles = Array.from(e.target.files);
+                        
+                        if(confirm("Wybrano " + newFiles.length + " zdjęć. Czy chcesz je teraz przyciąć?")) {
+                            window.startImageCropper(newFiles, function(processedFiles) {
+                                processedFiles.forEach(f => accumulatedFiles.push(f));
+                                updateInputAndPreviews();
+                            });
+                        } else {
+                            newFiles.forEach(f => accumulatedFiles.push(f));
+                            updateInputAndPreviews();
+                        }
+                        
+                        photoInput.value = '';
                     }
                 });
             }

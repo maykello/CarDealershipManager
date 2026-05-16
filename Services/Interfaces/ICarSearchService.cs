@@ -16,5 +16,7 @@ namespace CarDealershipManager.Services.Interfaces
             int pageSize = 10);
 
         Task<CarDto> GetCarByIdAsync(int carId);
+
+        Task<List<GalleryDto>> GetRandomMainPhotosAsync(int count);
     }
 }

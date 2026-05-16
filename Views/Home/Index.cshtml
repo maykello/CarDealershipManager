@@ -1,11 +1,199 @@
+@model List<CarDealershipManager.Models.Dtos.GalleryDto>
+
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Strona główna - CarDealership Manager";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Witaj w komisie samochodów</h1>
-    <p>Szukasz używanego samochodu? Sprawdź naszą ofertę!</p>
-    <p>
-        <a href="@Url.Action("Cars", "Home")" class="btn btn-primary btn-lg">Zobacz nasze samochody</a>
+<!-- HERO SECTION -->
+<section class="hero animate-fade-in">
+    <div class="hero-content">
+        <h1>Znajdź swój wymarzony samochód</h1>
+        <p>Profesjonalny system zarządzania komisem samochodów z szeroką ofertą pojazdów wysokiej jakości</p>
+        <div class="hero-cta">
+            <a href="@Url.Action("Cars", "Home")" class="btn btn-primary btn-lg">
+                <i class="fas fa-car me-2"></i> Przeglądaj ofertę
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- CAROUSEL ZDJĘĆ - MINI GALERIA -->
+<section style="margin-top: 3rem; padding: 2rem 0; overflow: hidden;">
+    <div class="text-center mb-4">
+        <h3 style="color: var(--color-navy-light);">Nasze pojazdy</h3>
+        <p style="color: var(--color-gray-medium);">Przejrzyj galerię naszych pojazdów</p>
+    </div>
+
+    <div class="infinite-carousel">
+        <div class="carousel-track">
+            @if (Model != null && Model.Count > 0)
+            {
+                @for (int i = 0; i < 2; i++)
+                {
+                    @foreach (var photo in Model)
+                    {
+                        <div class="carousel-slide">
+                            <a href="@Url.Action("Details", "Home", new { id = photo.CarId })" title="Zobacz szczegóły">
+                                <img src="@photo.FilePath" alt="Samochód" class="carousel-image">
+                            </a>
+                        </div>
+                    }
+                }
+            }
+        </div>
+    </div>
+</section>
+
+<!-- SEKCJA INFORMACYJNA -->
+<section>
+    <div class="section-header">
+        <h2>Dlaczego nas wybrać?</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-4">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3>Weryfikowana jakość</h3>
+                <p> Sed laoreet tempus erat, vitae aliquet odio mattis ut. Donec sodales vulputate facilisis. Praesent commodo non augue nec auctor.</p>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Bezpieczeństwo transakcji</h3>
+                <p>Aliquam tempus ultrices sapien quis finibus. Phasellus dictum lorem sed ipsum malesuada imperdiet. Praesent eu ipsum sed urna dapibus sagittis at et lectus. Suspendisse vitae nunc gravida, venenatis magna sit amet.</p>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <h3>Zarządzanie zaawansowane</h3>
+                <p>Pellentesque sed luctus tortor, porttitor volutpat nulla. Sed efficitur sem orci, et suscipit orci ultrices quis. Donec pretium eros nibh. </p>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <h3>Konkurencyjne ceny</h3>
+                <p>Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Pellentesque gravida dui ante, vel tincidunt augue malesuada imperdiet.</p>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <h3>Wsparcie 24/7</h3>
+                <p>Phasellus hendrerit ipsum urna, feugiat placerat felis mattis quis. Vestibulum et erat mattis quam luctus rutrum. Suspendisse varius eu metus nec ultrices.</p>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-certificate"></i>
+                </div>
+                <h3>Sertyfikacja</h3>
+                <p>Quisque vitae ex nulla. Sed sit amet ante porta, laoreet ligula in, faucibus nunc. Donec sollicitudin erat sollicitudin neque pretium.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SEKCJA STATYSTYK -->
+<section style="background-color: var(--color-white); padding: 3rem 0; margin-top: 2rem;">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3 mb-3">
+                <h3 style="color: var(--color-navy-light); font-size: 2.5rem; font-weight: 700;">500+</h3>
+                <p>Pojazdów sprzedanych</p>
+            </div>
+            <div class="col-md-3 mb-3">
+                <h3 style="color: var(--color-navy-light); font-size: 2.5rem; font-weight: 700;">1000+</h3>
+                <p>Zadowolonych klientów</p>
+            </div>
+            <div class="col-md-3 mb-3">
+                <h3 style="color: var(--color-navy-light); font-size: 2.5rem; font-weight: 700;">15+</h3>
+                <p>Lat doświadczenia</p>
+            </div>
+            <div class="col-md-3 mb-3">
+                <h3 style="color: var(--color-navy-light); font-size: 2.5rem; font-weight: 700;">99%</h3>
+                <p>Satysfakcji klientów</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SEKCJA Oferty -->
+<section style="background: var(--gradient-navy-blue); color: white; border-radius: 12px; padding: 4rem 2rem; margin: 3rem 0; text-align: center;">
+    <h2 style="color: white; margin-bottom: 1rem;">Gotowy na nowy samochód?</h2>
+    <p style="color: rgba(255,255,255,0.9); font-size: 1.1rem; margin-bottom: 2rem;">
+        Poznaj naszą pełną ofertę i znajdź pojazd idealny dla siebie. Nasze doradczki pomocą Ci wybrać najlepszą opcję.
     </p>
-</div>
+    <a href="@Url.Action("Cars", "Home")" class="btn btn-light btn-lg">
+        <i class="fas fa-search me-2"></i> Szukaj teraz
+    </a>
+</section>
+
+<!-- SEKCJA O FIRMIE -->
+<section style="margin-top: 3rem;">
+    <div class="row align-items-center">
+        <div class="col-md-6 mb-4">
+            <h2>O naszej firmie</h2>
+            <p>
+                <strong>CarDealership Manager</strong> Donec varius leo vel lacus ullamcorper rhoncus at ut tortor. Fusce efficitur varius leo non vestibulum. Pellentesque accumsan imperdiet lobortis.
+            </p>
+            <p>
+                Morbi suscipit vulputate congue. Integer consequat ultrices ante lobortis venenatis. Vestibulum quis ipsum accumsan, venenatis neque et, vestibulum nunc. Mauris lacinia orci eget nisi varius luctus. Proin erat sapien, ultrices nec bibendum vitae, egestas ut tellus.
+            </p>
+            <p>
+                Morbi non lorem at felis vulputate vulputate. Nunc at est sed erat pretium tristique eget tincidunt leo. Curabitur euismod tempor ante in tempus.
+            </p>
+            <a href="@Url.Action("Privacy", "Home")" class="btn btn-primary mt-3">
+                <i class="fas fa-info-circle me-2"></i> Dowiedz się więcej
+            </a>
+        </div>
+        <div class="col-md-6">
+            <div class="card animate-slide-in">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clipboard-list me-2"></i> Nasze osiągnięcia
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-star text-warning me-2"></i> <strong>Szeroka oferta</strong> - Ponad 200 pojazdów w katalog
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-star text-warning me-2"></i> <strong>Szybkie transakcje</strong> - Średni czas sprzedaży 3 dni
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-star text-warning me-2"></i> <strong>Zaufane partnerstwa</strong> - Współpraca z bankami i ubezpieczycielami
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-star text-warning me-2"></i> <strong>Profesjonalny zespół</strong> - Doświadczeni doradcy i mechanicy
+                        </li>
+                        <li>
+                            <i class="fas fa-star text-warning me-2"></i> <strong>Gwarancja jakości</strong> - Wszystkie pojazdy gwarantowane
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

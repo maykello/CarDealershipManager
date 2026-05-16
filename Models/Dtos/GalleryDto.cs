@@ -7,5 +7,6 @@ namespace CarDealershipManager.Models.Dtos
         public string? Description { get; set; }
         public string? PublicId { get; set; }
         public bool IsMain { get; set; }
+        public int? CarId { get; set; }
     }
 }
