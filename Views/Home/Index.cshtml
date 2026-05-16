@@ -34,7 +34,7 @@
                     {
                         <div class="carousel-slide">
                             <a href="@Url.Action("Details", "Home", new { id = photo.CarId })" title="Zobacz szczegóły">
-                                <img src="@photo.FilePath" alt="Samochód" class="carousel-image">
+                                <img src="@photo.FilePath" alt="Samochód" class="carousel-image" loading="lazy">
                             </a>
                         </div>
                     }
