@@ -19,9 +19,10 @@ namespace CarDealershipManager.Controllers
             _filterService = filterService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var randomGalleryPhotos = await _carSearchService.GetRandomMainPhotosAsync(10);
+            return View(randomGalleryPhotos);
         }
 
         public async Task<IActionResult> Cars(

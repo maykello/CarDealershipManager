@@ -138,6 +138,18 @@ namespace CarDealershipManager.Services
 
             return car == null ? null : _mapper.Map<CarDto>(car);
         }
+
+        public async Task<List<GalleryDto>> GetRandomMainPhotosAsync(int count)
+        {
+            var randomPhotos = await _context.Galleries
+                .Where(g => g.IsMain)
+                .OrderBy(g => EF.Functions.Random())
+                .Take(count)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return _mapper.Map<List<GalleryDto>>(randomPhotos);
+        }
     }
 }
 
