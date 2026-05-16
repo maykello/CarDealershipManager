@@ -43,7 +43,7 @@
                         @if (User.Identity != null && User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
-                                <span class="badge badge-success me-2" style="font-size: 0.85rem; padding: 0.5rem 0.75rem;">
+                                <span class="badge badge-success me-2">
                                     <i class="fas fa-shield-alt"></i> Admin
                                 </span>
                             </li>
@@ -74,7 +74,7 @@
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link btn btn-primary btn-sm" asp-controller="Admin" asp-action="Login">
+                                <a class="nav-link" asp-controller="Admin" asp-action="Login">
                                     <i class="fas fa-sign-in-alt"></i> Zaloguj się
                                 </a>
                             </li>

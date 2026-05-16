@@ -4,67 +4,120 @@
     ViewData["Title"] = "Klienci";
 }
 
-<div class="container mt-4">
-    <h2>Klienci i Firmy</h2>
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-0">Klienci i Firmy</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Dodaj Nowego Klienta
+            </a>
+        </div>
+    </div>
 
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger">
-            @TempData["ErrorMessage"]
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
 
-    <p>
-        <a asp-action="Create" class="btn btn-primary">Dodaj Nowego Klienta</a>
-    </p>
-    <table class="table table-striped table-hover mt-3">
-        <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>Typ</th>
-                <th>Nazwa / Imię i Nazwisko</th>
-                <th>Email</th>
-                <th>Telefon</th>
-                <th>Miasto</th>
-                <th>Akcje</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model) {
-                var isOurCompany = (item.Id == 1);
-                var rowClass = isOurCompany ? "table-warning" : "";
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
-                <tr class="@rowClass">
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Id)
-                        @if (isOurCompany)
-                        {
-                            <span class="badge bg-secondary ms-1">Nasza Firma</span>
-                        }
-                    </td>
-                    <td>@Html.DisplayFor(modelItem => item.Type)</td>
-                    <td>
-                        @if (item.Type == CarDealershipManager.Models.Entities.CustomerType.Company)
-                        {
-                            @Html.DisplayFor(modelItem => item.CompanyName)
-                        }
-                        else
-                        {
-                            @Html.Raw($"{item.FirstName} {item.LastName}")
-                        }
-                    </td>
-                    <td>@Html.DisplayFor(modelItem => item.Email)</td>
-                    <td>@Html.DisplayFor(modelItem => item.PhoneNumber)</td>
-                    <td>@Html.DisplayFor(modelItem => item.City)</td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edytuj</a>
-                        @if (!isOurCompany)
-                        {
-                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Usuń</a>
-                        }
-                    </td>
-                </tr>
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light border-bottom">
+            <h5 class="mb-0">Lista klientów</h5>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Typ</th>
+                                <th>Nazwa / Imię i Nazwisko</th>
+                                <th>Email</th>
+                                <th>Telefon</th>
+                                <th>Miasto</th>
+                                <th class="text-end">Akcje</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                var isOurCompany = (item.Id == 1);
+
+                                <tr class="@(isOurCompany ? "table-light" : "")">
+                                    <td>
+                                        <strong>@item.Id</strong>
+                                        @if (isOurCompany)
+                                        {
+                                            <span class="badge bg-success ms-2">Nasza Firma</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (item.Type == CarDealershipManager.Models.Entities.CustomerType.Company)
+                                        {
+                                            <span class="badge bg-info">Firma</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Osoba</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (item.Type == CarDealershipManager.Models.Entities.CustomerType.Company)
+                                        {
+                                            @item.CompanyName
+                                        }
+                                        else
+                                        {
+                                            @($"{item.FirstName} {item.LastName}")
+                                        }
+                                    </td>
+                                    <td>@item.Email</td>
+                                    <td>@item.PhoneNumber</td>
+                                    <td>@item.City</td>
+                                    <td class="text-end">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        @if (!isOurCompany)
+                                        {
+                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
-        </tbody>
-    </table>
+            else
+            {
+                <div class="p-4 text-center text-muted">
+                    <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                    <p>Brak klientów w systemie</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a asp-controller="Admin" asp-action="Panel" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Powrót do panelu
+        </a>
+    </div>
 </div>
