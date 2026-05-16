@@ -187,7 +187,9 @@
                     @foreach (var photo in Model)
                     {
                         <div class="carousel-slide">
-                            <img src="@photo.FilePath" alt="Samochód" class="carousel-image">
+                            <a href="@Url.Action("Details", "Home", new { id = photo.CarId })" title="Zobacz szczegóły">
+                                <img src="@photo.FilePath" alt="Samochód" class="carousel-image">
+                            </a>
                         </div>
                     }
                 }

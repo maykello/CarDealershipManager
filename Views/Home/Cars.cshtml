@@ -226,13 +226,17 @@
                     @if (car.Gallery != null && car.Gallery.Any())
                     {
                         var mainPhoto = car.Gallery.FirstOrDefault(g => g.IsMain) ?? car.Gallery.First();
-                        <img src="@mainPhoto.FilePath" class="img-fluid rounded" alt="@car.Generation?.Model?.Make?.Name @car.Generation?.Model?.Name" style="height: 350px; object-fit: cover; width: 100%;" loading="lazy">
+                        <a href="@Url.Action("Details", new { id = car.CarId })" class="d-block">
+                            <img src="@mainPhoto.FilePath" class="img-fluid rounded" alt="@car.Generation?.Model?.Make?.Name @car.Generation?.Model?.Name" style="height: 350px; object-fit: cover; width: 100%;" loading="lazy">
+                        </a>
                     }
                     else
                     {
-                        <div class="bg-secondary rounded" style="height: 350px; display: flex; align-items: center; justify-content: center; width: 100%;">
-                            <span class="text-white">Brak zdjęcia</span>
-                        </div>
+                        <a href="@Url.Action("Details", new { id = car.CarId })" class="text-decoration-none d-block">
+                            <div class="bg-secondary rounded" style="height: 350px; display: flex; align-items: center; justify-content: center; width: 100%;">
+                                <span class="text-white">Brak zdjęcia</span>
+                            </div>
+                        </a>
                     }
                 </div>
 

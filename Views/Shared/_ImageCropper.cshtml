@@ -1,0 +1,213 @@
+<!-- Cropper.js CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+
+<!-- Image Cropper Modal -->
+<div class="modal fade" id="imageCropperModal" tabindex="-1" aria-labelledby="imageCropperModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageCropperModalLabel">Przycinanie zdjęcia <span id="cropperCounter"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="btnCropperCloseTop"></button>
+            </div>
+            <div class="modal-body text-center bg-dark p-0">
+                <div id="cropperContainer" style="height: 60vh; min-height: 350px; width: 100%; overflow: hidden; background: #1a1a1a;">
+                    <img id="cropperImage" style="display: block; max-width: 100%;" />
+                </div>
+                <div class="p-3 bg-light border-top d-flex justify-content-center gap-2">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="btnCropperRotateLeft" title="Obróć w lewo">
+                        <i class="bi bi-arrow-counterclockwise"></i> Obróć
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="btnCropperRotateRight" title="Obróć w prawo">
+                        <i class="bi bi-arrow-clockwise"></i> Obróć
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="btnCropperReset" title="Zresetuj">
+                        <i class="bi bi-arrow-repeat"></i> Zresetuj
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-between">
+                <div>
+                    <button type="button" class="btn btn-secondary" id="btnCropperSkip">Pomiń przycinanie</button>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-danger d-none" data-bs-dismiss="modal" id="btnCropperCancel">Anuluj wszystko</button>
+                    <button type="button" class="btn btn-primary px-4" id="btnCropperSave">Zapisz i kontynuuj</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cropper.js JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<script>
+    (function () {
+        let cropper = null;
+        let cropperModalElement = null;
+        let cropperModalInstance = null;
+        let imageElement = null;
+        
+        let filesQueue = [];
+        let processedFiles = [];
+        let currentFileIndex = 0;
+        let onCompleteCallback = null;
+        let pendingFileLoad = false;
+
+        document.addEventListener("DOMContentLoaded", function () {
+            cropperModalElement = document.getElementById('imageCropperModal');
+            imageElement = document.getElementById('cropperImage');
+            
+            if (cropperModalElement) {
+                cropperModalInstance = new bootstrap.Modal(cropperModalElement, {
+                    keyboard: false,
+                    backdrop: 'static'
+                });
+                
+                // Inicjalizuj Croppera DOPIERO gdy modal jest w pełni widoczny
+                cropperModalElement.addEventListener('shown.bs.modal', function () {
+                    if (pendingFileLoad && filesQueue.length > 0) {
+                        pendingFileLoad = false;
+                        loadFileIntoCropper(filesQueue[currentFileIndex]);
+                    }
+                });
+                
+                // Cleanup cropper when modal is completely hidden
+                cropperModalElement.addEventListener('hidden.bs.modal', function () {
+                    destroyCropper();
+                    if (filesQueue.length > 0 && currentFileIndex < filesQueue.length) {
+                         finishCroppingProcess();
+                    }
+                });
+            }
+
+            document.getElementById('btnCropperSkip').addEventListener('click', function() {
+                // Keep original file
+                processedFiles.push(filesQueue[currentFileIndex]);
+                nextFile();
+            });
+
+            document.getElementById('btnCropperSave').addEventListener('click', function() {
+                if (!cropper) return;
+                
+                cropper.getCroppedCanvas({
+                    maxWidth: 4096,
+                    maxHeight: 4096,
+                    fillColor: '#fff',
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high',
+                }).toBlob(function (blob) {
+                    const originalFile = filesQueue[currentFileIndex];
+                    const fileName = originalFile.name;
+                    const croppedFile = new File([blob], fileName, {
+                        type: 'image/jpeg',
+                        lastModified: new Date().getTime()
+                    });
+                    
+                    processedFiles.push(croppedFile);
+                    nextFile();
+                }, 'image/jpeg', 0.9);
+            });
+
+            document.getElementById('btnCropperRotateLeft').addEventListener('click', function() {
+                if (cropper) cropper.rotate(-90);
+            });
+
+            document.getElementById('btnCropperRotateRight').addEventListener('click', function() {
+                if (cropper) cropper.rotate(90);
+            });
+
+            document.getElementById('btnCropperReset').addEventListener('click', function() {
+                if (cropper) cropper.reset();
+            });
+            
+            document.getElementById('btnCropperCloseTop').addEventListener('click', function() {
+                // Same as cancel all
+                finishCroppingProcess();
+            });
+            
+            document.getElementById('btnCropperCancel').addEventListener('click', function() {
+                finishCroppingProcess();
+            });
+        });
+
+        function destroyCropper() {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            imageElement.src = '';
+        }
+
+        function loadFileIntoCropper(file) {
+            destroyCropper();
+            
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                imageElement.src = e.target.result;
+                imageElement.style.display = 'block';
+                
+                cropper = new Cropper(imageElement, {
+                    viewMode: 2,
+                    autoCropArea: 1,
+                    responsive: true,
+                    restore: false,
+                    guides: true,
+                    center: true,
+                    highlight: false,
+                    cropBoxMovable: true,
+                    cropBoxResizable: true,
+                    toggleDragModeOnDblclick: false,
+                    minContainerHeight: 350
+                });
+                
+                document.getElementById('cropperCounter').innerText = `(${currentFileIndex + 1} z ${filesQueue.length})`;
+                
+                if (currentFileIndex === filesQueue.length - 1) {
+                    document.getElementById('btnCropperSave').innerText = "Zapisz i zakończ";
+                } else {
+                    document.getElementById('btnCropperSave').innerText = "Zapisz i następne";
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function nextFile() {
+            currentFileIndex++;
+            if (currentFileIndex < filesQueue.length) {
+                loadFileIntoCropper(filesQueue[currentFileIndex]);
+            } else {
+                cropperModalInstance.hide();
+                finishCroppingProcess();
+            }
+        }
+
+        function finishCroppingProcess() {
+            if (onCompleteCallback && typeof onCompleteCallback === 'function') {
+                const results = [...processedFiles];
+                // Clean up state
+                filesQueue = [];
+                processedFiles = [];
+                onCompleteCallback(results);
+                onCompleteCallback = null;
+            }
+        }
+
+        // Expose function globally
+        window.startImageCropper = function(filesArray, callback) {
+            if (!filesArray || filesArray.length === 0) {
+                if (callback) callback([]);
+                return;
+            }
+            
+            filesQueue = filesArray;
+            processedFiles = [];
+            currentFileIndex = 0;
+            onCompleteCallback = callback;
+            pendingFileLoad = true;
+            
+            // Najpierw pokaż modal, Cropper zainicjalizuje się po shown.bs.modal
+            cropperModalInstance.show();
+        };
+    })();
+</script>

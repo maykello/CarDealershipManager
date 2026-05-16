@@ -260,6 +260,8 @@
     </div>
 </div>
 
+<partial name="_ImageCropper" />
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
@@ -356,8 +358,19 @@
             if(photoInput) {
                 photoInput.addEventListener('change', function(e) {
                     if (e.target.files.length > 0) {
-                        Array.from(e.target.files).forEach(f => accumulatedFiles.push(f));
-                        updateInputAndPreviews();
+                        const newFiles = Array.from(e.target.files);
+                        
+                        if(confirm("Wybrano " + newFiles.length + " zdjęć. Czy chcesz je teraz przyciąć?")) {
+                            window.startImageCropper(newFiles, function(processedFiles) {
+                                processedFiles.forEach(f => accumulatedFiles.push(f));
+                                updateInputAndPreviews();
+                            });
+                        } else {
+                            newFiles.forEach(f => accumulatedFiles.push(f));
+                            updateInputAndPreviews();
+                        }
+                        
+                        photoInput.value = '';
                     }
                 });
             }

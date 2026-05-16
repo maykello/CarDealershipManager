@@ -203,6 +203,14 @@ a:hover {
 .carousel-slide:hover {
   transform: scale(1.05);
   box-shadow: var(--shadow-lg);
+    cursor: pointer;
+}
+
+.carousel-slide a {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
 }
 
 .carousel-image {
