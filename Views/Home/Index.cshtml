@@ -17,10 +17,35 @@
     </div>
 </section>
 
+<!-- CAROUSEL ZDJĘĆ - MINI GALERIA -->
+<section style="margin-top: 3rem; padding: 2rem 0; overflow: hidden;">
+    <div class="text-center mb-4">
+        <h3 style="color: var(--color-navy-light);">Nasze pojazdy</h3>
+        <p style="color: var(--color-gray-medium);">Przejrzyj galerię naszych pojazdów</p>
+    </div>
+
+    <div class="infinite-carousel">
+        <div class="carousel-track">
+            @if (Model != null && Model.Count > 0)
+            {
+                @for (int i = 0; i < 2; i++)
+                {
+                    @foreach (var photo in Model)
+                    {
+                        <div class="carousel-slide">
+                            <img src="@photo.FilePath" alt="Samochód" class="carousel-image">
+                        </div>
+                    }
+                }
+            }
+        </div>
+    </div>
+</section>
+
 <!-- SEKCJA INFORMACYJNA -->
 <section>
     <div class="section-header">
-        <h2>Dlaczego wybrać nas?</h2>
+        <h2>Dlaczego nas wybrać?</h2>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
     </div>
 
@@ -167,31 +192,6 @@
                     </ul>
                 </div>
             </div>
-        </div>
-    </div>
-</section>
-
-<!-- CAROUSEL ZDJĘĆ - MINI GALERIA -->
-<section style="margin-top: 4rem; padding-bottom: 2rem; overflow: hidden;">
-    <div class="text-center mb-4">
-        <h3 style="color: var(--color-navy-light);">Nasze pojazdy</h3>
-        <p style="color: var(--color-gray-medium);">Przejrzyj galerię naszych pojazdów</p>
-    </div>
-
-    <div class="infinite-carousel">
-        <div class="carousel-track">
-            @if (Model != null && Model.Count > 0)
-            {
-                @for (int i = 0; i < 2; i++)
-                {
-                    @foreach (var photo in Model)
-                    {
-                        <div class="carousel-slide">
-                            <img src="@photo.FilePath" alt="Samochód" class="carousel-image">
-                        </div>
-                    }
-                }
-            }
         </div>
     </div>
 </section>
