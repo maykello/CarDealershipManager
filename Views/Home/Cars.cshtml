@@ -226,16 +226,18 @@
                     @if (car.Gallery != null && car.Gallery.Any())
                     {
                         var mainPhoto = car.Gallery.FirstOrDefault(g => g.IsMain) ?? car.Gallery.First();
-                        <a href="@Url.Action("Details", new { id = car.CarId })" class="d-block">
+                        <a href="@Url.Action("Details", new { id = car.CarId })" class="d-block position-relative">
                             <img src="@mainPhoto.FilePath" class="img-fluid rounded" alt="@car.Generation?.Model?.Make?.Name @car.Generation?.Model?.Name" style="height: 350px; object-fit: cover; width: 100%;" loading="lazy">
+                            <span class="badge @GetStatusBadgeClass(car.CarStatus?.Name) car-status-ribbon">@car.CarStatus?.Name</span>
                         </a>
                     }
                     else
                     {
-                        <a href="@Url.Action("Details", new { id = car.CarId })" class="text-decoration-none d-block">
+                        <a href="@Url.Action("Details", new { id = car.CarId })" class="text-decoration-none d-block position-relative">
                             <div class="bg-secondary rounded" style="height: 350px; display: flex; align-items: center; justify-content: center; width: 100%;">
                                 <span class="text-white">Brak zdjęcia</span>
                             </div>
+                            <span class="badge @GetStatusBadgeClass(car.CarStatus?.Name) car-status-ribbon">@car.CarStatus?.Name</span>
                         </a>
                     }
                 </div>
@@ -287,7 +289,6 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <h4 class="text-primary mb-0">@car.Price.ToString("C")</h4>
                         <div class="d-flex gap-2 align-items-center">
-                            <span class="badge @GetStatusBadgeClass(car.CarStatus?.Name) fs-6">@car.CarStatus?.Name</span>
                             <a href="@Url.Action("Details", new { id = car.CarId })" class="btn btn-sm btn-primary">
                                 Szczegóły
                             </a>
