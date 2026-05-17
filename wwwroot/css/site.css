@@ -679,3 +679,17 @@ section {
         background-color: #2d3a52 !important;
         color: var(--color-darker-gray) !important;
     }
+
+/* Nak³adka statusu na miniaturze auta (lista samochodów) */
+.car-status-ribbon {
+    position: absolute;
+    top: 12px;
+    left: 0;
+    border-radius: 0 4px 4px 0;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+    pointer-events: none;
+}
